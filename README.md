@@ -1,6 +1,12 @@
 # Mandate
 
-Mandate is the authority layer for one logical organisation-wide AI agent. Employees can ask for anything, but the agent acts for the organisation, not under the employee's account. Mandate decides which actions can happen, what evidence and approvals are required, what scoped capability is released, and what receipt is left behind. Blocked actions become teaching signals for safer future runs.
+Mandate is built on a new and provably optimal architecture for enterprise and government AI: one logical organisation-wide agent, not a collection of per-employee bots.
+
+Technically it can be many parallel LLM loops, tools, and specialist workers, but semantically it acts for the organisation, so it can optimise globally instead of inheriting one employee's narrow permissions and incentives.
+
+Mandate is the control layer that makes that safe. It breaks requests into real actions such as memory access, code changes, vendor work, funding decisions, verifier-agent payments, releases, and public receipts. Each action is checked against policy, evidence, approvals, scoped capability, and audit requirements before it can happen.
+
+The key product idea is that refusals are useful. When Mandate blocks or waits on an action, it records what proof, owner, replay, milestone, or receipt was missing. That turns governance into a teaching signal, so future agent runs become safer, faster, and more reusable.
 
 [Slides](https://docs.google.com/presentation/d/1aOhdjO_dH683ssDNuktCOFDD9Cg9H05UIk7i--i2css/edit?slide=id.p#slide=id.p)
 
