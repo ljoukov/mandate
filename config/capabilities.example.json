@@ -1,0 +1,256 @@
+{
+  "product": {
+    "name": "Mandate",
+    "codename": "code-onion",
+    "policyVersion": "mandate-policy-v7",
+    "positioning": "enterprise authority fabric for AI agents"
+  },
+  "detectors": {
+    "code_diff": [
+      "path_owners",
+      "semantic_diff",
+      "moved_file_taint",
+      "base_branch_policy"
+    ],
+    "evidence_pack": [
+      "source_citation_check",
+      "permissioned_memory_check",
+      "derived_lineage_check",
+      "freshness_check"
+    ],
+    "agent_action": [
+      "external_commitment",
+      "money_or_price_change",
+      "vendor_or_data_processor_change",
+      "model_or_threshold_change",
+      "physical_world_dispatch",
+      "agent_spend"
+    ],
+    "protected_oracles": [
+      "delete_test",
+      "weaken_assertion",
+      "skip_eval",
+      "remove_fraud_check",
+      "change_paid_customer_guarantee"
+    ]
+  },
+  "authorityLayers": {
+    "implementation.performance": {
+      "description": "Low-business-risk implementation changes with measurable non-regression.",
+      "owners": ["@engineering"],
+      "defaultDecision": "release_after_tests"
+    },
+    "money.pricing": {
+      "description": "Pricing, SKU, coupon, refund, and revenue-contract authority.",
+      "owners": ["@finance", "@product"],
+      "defaultDecision": "approval_required"
+    },
+    "vendor.api_provider": {
+      "description": "External provider, data processor, privacy, retention, and cost-model changes.",
+      "owners": ["@platform", "@security"],
+      "defaultDecision": "approval_required"
+    },
+    "product_quality.recommendation_tradeoff": {
+      "description": "Model thresholds, ranking knobs, and quality/latency tradeoffs.",
+      "owners": ["@ml-quality", "@product"],
+      "defaultDecision": "metric_gate_required"
+    },
+    "test_oracle.integration": {
+      "description": "Tests, evals, fraud checks, and business guarantees that define whether behavior is correct.",
+      "owners": ["@qa", "@domain-owner"],
+      "defaultDecision": "blocked_by_default"
+    },
+    "regulated.customer_decision": {
+      "description": "KYC, public-service, clinical, eligibility, or other regulated decisions.",
+      "owners": ["@compliance", "@legal"],
+      "defaultDecision": "human_decision_required"
+    },
+    "commercial.external_commitment": {
+      "description": "Tender responses, vendor emails, contract amendments, and statements sent outside the company.",
+      "owners": ["@legal", "@commercial", "@delivery"],
+      "defaultDecision": "approval_required"
+    },
+    "agent_economy.spend": {
+      "description": "Buying external model calls, audits, research, or agent work.",
+      "owners": ["@finance", "@platform"],
+      "defaultDecision": "budget_and_acceptance_required"
+    },
+    "physical_world.dispatch": {
+      "description": "Grid, safety, field work, or other real-world actions.",
+      "owners": ["@operator", "@safety", "@compliance"],
+      "defaultDecision": "operator_signoff_required"
+    },
+    "evidence.permissioned_memory": {
+      "description": "Model-free ACL, source lineage, and revocation checks before context reaches any model.",
+      "owners": ["@data-owner", "@security"],
+      "defaultDecision": "deterministic_access_check_required"
+    },
+    "public_governance.decision": {
+      "description": "Planning, civic, grant, public-good, or other appeal-ready governance decisions.",
+      "owners": ["@public-owner", "@legal"],
+      "defaultDecision": "source_trace_and_human_review_required"
+    },
+    "ops.incident_precedent": {
+      "description": "Repeatable operational fixes derived from a known runbook or incident precedent.",
+      "owners": ["@ops-owner", "@sre"],
+      "defaultDecision": "rollback_required"
+    },
+    "strategy.transformation_decision": {
+      "description": "Enterprise AI transformation, impact, and roadmap recommendations.",
+      "owners": ["@executive-owner", "@risk"],
+      "defaultDecision": "simulation_and_owner_map_required"
+    }
+  },
+  "capabilities": {
+    "merge.implementation.performance": {
+      "description": "Merge low-risk implementation changes after tests and benchmarks pass.",
+      "env": "MANDATE_LOW_RISK_MERGE_TOKEN",
+      "secretReference": "secret://mandate/low-risk-merge/GITHUB_TOKEN",
+      "approvals": [],
+      "evidence": ["unit_tests", "golden_document_tests", "benchmark_no_regression"],
+      "receipt": "safe_merge_receipt"
+    },
+    "merge.money.pricing": {
+      "description": "Merge pricing changes after finance, product, and replay proof.",
+      "env": "MANDATE_PRICING_MERGE_TOKEN",
+      "secretReference": "secret://mandate/pricing-merge/GITHUB_TOKEN",
+      "approvals": [
+        { "group": "@finance", "count": 1 },
+        { "group": "@product", "count": 1 }
+      ],
+      "evidence": ["pricing_replay", "pricing_contract_tests", "checkout_integration_tests"],
+      "receipt": "pricing_authority_receipt"
+    },
+    "merge.vendor.api_provider": {
+      "description": "Merge provider changes after platform and security approval.",
+      "env": "MANDATE_PROVIDER_CHANGE_TOKEN",
+      "secretReference": "secret://mandate/provider-change/GITHUB_TOKEN",
+      "approvals": [
+        { "group": "@platform", "count": 1 },
+        { "group": "@security", "count": 1 }
+      ],
+      "evidence": ["provider_contract_tests", "privacy_regression_tests", "data_retention_note"],
+      "receipt": "provider_authority_receipt"
+    },
+    "run.product_quality.recommendation_eval": {
+      "description": "Run recommendation evals for ANN threshold and ranking tradeoff changes.",
+      "env": "MANDATE_RECS_EVAL_TOKEN",
+      "secretReference": "secret://mandate/recs-eval/EVAL_TOKEN",
+      "metricGates": {
+        "recall_at_50": ">= baseline - 0.5%",
+        "p95_latency": "<= baseline + 5%",
+        "dismissed_suggestion_rate": "<= baseline + 1%"
+      },
+      "receipt": "metric_gate_receipt"
+    },
+    "submit.procurement.response": {
+      "description": "Submit a tender or vendor-risk response only after source proof and owner approval.",
+      "env": "MANDATE_PROCUREMENT_SUBMIT_TOKEN",
+      "secretReference": "secret://mandate/procurement-submit/API_TOKEN",
+      "approvals": [
+        { "group": "@legal", "count": 1 },
+        { "group": "@delivery", "count": 1 }
+      ],
+      "evidence": ["clause_matrix", "source_citations", "liability_review"],
+      "receipt": "external_commitment_receipt"
+    },
+    "send.kyc.request_or_approve": {
+      "description": "Send bounded KYC outreach or mark a customer decision ready for human review.",
+      "env": "MANDATE_KYC_ACTION_TOKEN",
+      "secretReference": "secret://mandate/kyc-action/API_TOKEN",
+      "approvals": [
+        { "group": "@compliance", "count": 1 }
+      ],
+      "evidence": ["source_backed_scorecard", "tipping_off_firewall", "permissioned_memory_check"],
+      "receipt": "regulated_decision_receipt"
+    },
+    "read.permissioned_memory": {
+      "description": "Read a derived report only if the target grant and every transitive source grant pass.",
+      "env": "MANDATE_MEMORY_READ_TOKEN",
+      "secretReference": "secret://mandate/memory-read/API_TOKEN",
+      "evidence": ["source_acl", "derived_lineage", "revocation_log", "deterministic_access_log"],
+      "receipt": "permissioned_memory_receipt"
+    },
+    "pay.agent.vendor": {
+      "description": "Pay or settle external agent work after budget and acceptance gates pass.",
+      "env": "MANDATE_AGENT_PAYMENT_TOKEN",
+      "secretReference": "secret://mandate/agent-payment/WALLET_OR_API_TOKEN",
+      "approvals": [
+        { "group": "@finance", "count": 1 }
+      ],
+      "evidence": ["budget_lane", "acceptance_test", "delivery_proof"],
+      "receipt": "agent_spend_receipt"
+    },
+    "dispatch.grid.flexibility": {
+      "description": "Dispatch physical-world or grid action after simulation, telemetry, and operator sign-off.",
+      "env": "MANDATE_DISPATCH_TOKEN",
+      "secretReference": "secret://mandate/grid-dispatch/API_TOKEN",
+      "approvals": [
+        { "group": "@operator", "count": 1 },
+        { "group": "@safety", "count": 1 }
+      ],
+      "evidence": ["simulation", "telemetry", "carbon_or_reliability_goal", "rollback_plan"],
+      "receipt": "dispatch_commitment_receipt"
+    },
+    "publish.governance.receipt": {
+      "description": "Publish a public-good or civic decision receipt with only hashes and appeal metadata.",
+      "env": "MANDATE_GOVERNANCE_RECEIPT_TOKEN",
+      "secretReference": "secret://mandate/governance-receipt/API_TOKEN",
+      "evidence": ["public_sources", "objective_dag", "appeal_record"],
+      "receipt": "public_governance_receipt"
+    },
+    "run.ops.precedent_fix": {
+      "description": "Execute a known incident fix only after runbook match, blast-radius check, and rollback plan.",
+      "env": "MANDATE_OPS_FIX_TOKEN",
+      "secretReference": "secret://mandate/ops-fix/API_TOKEN",
+      "approvals": [
+        { "group": "@ops-owner", "count": 1 }
+      ],
+      "evidence": ["runbook_match", "blast_radius", "rollback_command"],
+      "receipt": "ops_precedent_receipt"
+    },
+    "publish.transformation_plan": {
+      "description": "Publish an AI transformation plan only after impact simulation and owner map.",
+      "env": "MANDATE_TRANSFORMATION_PLAN_TOKEN",
+      "secretReference": "secret://mandate/transformation-plan/API_TOKEN",
+      "evidence": ["impact_radar", "scenario_simulation", "owner_map"],
+      "receipt": "transformation_decision_receipt"
+    }
+  },
+  "blockedLayers": {
+    "test_oracle.integration": {
+      "description": "Deleting tests, weakening assertions, or skipping evals is blocked unless explicitly overridden.",
+      "overrideApprovals": [
+        { "group": "@qa", "count": 1 },
+        { "group": "@domain-owner", "count": 1 }
+      ],
+      "capabilityReleasedByDefault": false
+    }
+  },
+  "receiptSchema": {
+    "fields": [
+      "runId",
+      "agentIdentity",
+      "request",
+      "proposedAction",
+      "authorityLayer",
+      "policyVersion",
+      "evidenceHashes",
+    "permissionChecks",
+    "approvers",
+    "capability",
+    "ttlSeconds",
+      "receiptRail",
+    "command",
+    "result",
+    "receiptHash"
+    ],
+    "hashTargets": ["policyVersion", "evidenceHashes", "approvers", "capability", "result"]
+  },
+  "integrationHooks": {
+    "Conduct AI": "controlled enterprise change from weeks to action-ready minutes",
+    "Fetch.ai": "conversation front door for action readiness",
+    "CoralOS / STUK": "verifier-agent work is bought, delivered, checked, and released through scoped authority",
+    "GCC & ETH": "transparent governance for civic and public-good agent decisions"
+  }
+}

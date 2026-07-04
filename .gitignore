@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.approvals/
+.code-onion/local/
+node_modules/
+.svelte-kit/
+build/
+dist/
+slack/node_modules/
+slack/.svelte-kit/
+slack/build/
+docs/hackathon-demos/

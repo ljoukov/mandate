@@ -1,0 +1,559 @@
+{
+  "generatedAt": "2026-07-04T23:09:23.786Z",
+  "publicBody": "UK Public Digital Commons Fund",
+  "budgetGbp": 120000,
+  "gcc": {
+    "rubric": [
+      {
+        "id": "impact",
+        "label": "Expected public-good impact",
+        "weight": 0.22,
+        "whyItIsHardToGame": "Uses beneficiary count, cost, evidence confidence, and delivery risk together instead of raw reach."
+      },
+      {
+        "id": "counterfactual",
+        "label": "Counterfactual additionality",
+        "weight": 0.18,
+        "whyItIsHardToGame": "Rewards work unlikely to happen without the grant, so wealthy or already-funded teams cannot win on polish alone."
+      },
+      {
+        "id": "milestone",
+        "label": "Milestone verifiability",
+        "weight": 0.16,
+        "whyItIsHardToGame": "Funds release only against concrete artifacts, tests, deployment proofs, or independent verification."
+      },
+      {
+        "id": "commons",
+        "label": "Forkable digital commons",
+        "weight": 0.16,
+        "whyItIsHardToGame": "Scores permissive licenses, reusable interfaces, and documentation rather than one-off closed outputs."
+      },
+      {
+        "id": "governance",
+        "label": "Transparency and appeal record",
+        "weight": 0.12,
+        "whyItIsHardToGame": "Requires public reasons, cited evidence, and an appeal-ready receipt for the decision."
+      },
+      {
+        "id": "rights",
+        "label": "Privacy and civic-rights fit",
+        "weight": 0.1,
+        "whyItIsHardToGame": "Gates sensitive data use, access controls, and rights impact before a recommendation can become spend."
+      },
+      {
+        "id": "antiGaming",
+        "label": "Anti-gaming adjustment",
+        "weight": 0.06,
+        "whyItIsHardToGame": "Penalises vanity metrics, vague milestones, and score inflation signals before final ranking."
+      }
+    ],
+    "applications": [
+      {
+        "id": "app-planning-commons",
+        "applicant": "Open Planning Evidence Commons",
+        "askGbp": 72000,
+        "category": "public-funding",
+        "summary": "Open-source planning appeal evidence index for councils, with cited policies, precedents, and reusable review rubrics.",
+        "requestedAgentService": "Independent milestone verifier for policy citation coverage and appeal-record completeness.",
+        "metrics": {
+          "beneficiaries": 520000,
+          "unitCostGbp": 0.14,
+          "evidenceConfidence": 0.82,
+          "baselineProbability": 0.28,
+          "milestoneClarity": 0.9,
+          "openSourceReuse": 0.95,
+          "governanceTransparency": 0.88,
+          "privacyRightsFit": 0.8,
+          "deliveryRisk": 0.22,
+          "vanityProxyRisk": 0.08
+        },
+        "milestones": [
+          {
+            "id": "m1",
+            "label": "Publish schema, policy-source connector, and sample authority pack",
+            "dueInDays": 30,
+            "evidenceRequired": [
+              "repo_commit",
+              "schema_docs",
+              "source_license_table"
+            ],
+            "releasePercent": 35
+          },
+          {
+            "id": "m2",
+            "label": "Run replay on 250 public appeal decisions with citation coverage report",
+            "dueInDays": 65,
+            "evidenceRequired": [
+              "replay_dataset_hash",
+              "coverage_report",
+              "error_review"
+            ],
+            "releasePercent": 40
+          },
+          {
+            "id": "m3",
+            "label": "Council handover pack and appeal-record API",
+            "dueInDays": 90,
+            "evidenceRequired": [
+              "api_contract",
+              "handover_docs",
+              "public_receipt"
+            ],
+            "releasePercent": 25
+          }
+        ]
+      },
+      {
+        "id": "app-rights-advice",
+        "applicant": "Tenant Rights Access Lab",
+        "askGbp": 46000,
+        "category": "ai-for-good",
+        "summary": "Privacy-preserving access-to-information agent that helps tenants prepare evidence bundles without exposing personal data to model providers.",
+        "requestedAgentService": "Privacy and milestone verifier for deterministic retrieval access checks and redaction logs.",
+        "metrics": {
+          "beneficiaries": 85000,
+          "unitCostGbp": 0.54,
+          "evidenceConfidence": 0.76,
+          "baselineProbability": 0.34,
+          "milestoneClarity": 0.82,
+          "openSourceReuse": 0.86,
+          "governanceTransparency": 0.72,
+          "privacyRightsFit": 0.94,
+          "deliveryRisk": 0.3,
+          "vanityProxyRisk": 0.12
+        },
+        "milestones": [
+          {
+            "id": "m1",
+            "label": "Permissioned retrieval prototype with redaction audit log",
+            "dueInDays": 28,
+            "evidenceRequired": [
+              "acl_test_log",
+              "redaction_log",
+              "threat_model"
+            ],
+            "releasePercent": 45
+          },
+          {
+            "id": "m2",
+            "label": "Advice bundle workflow tested with public sample cases",
+            "dueInDays": 70,
+            "evidenceRequired": [
+              "case_replay",
+              "model_context_hashes",
+              "review_notes"
+            ],
+            "releasePercent": 35
+          },
+          {
+            "id": "m3",
+            "label": "Forkable deployment guide for advice charities",
+            "dueInDays": 95,
+            "evidenceRequired": [
+              "deployment_docs",
+              "operator_checklist",
+              "public_receipt"
+            ],
+            "releasePercent": 20
+          }
+        ]
+      },
+      {
+        "id": "app-env-monitor",
+        "applicant": "River Watch Commons",
+        "askGbp": 38000,
+        "category": "ai-for-good",
+        "summary": "Open environmental monitoring workflow that turns public river quality data into cited alerts and remediation milestone checks.",
+        "requestedAgentService": "Data quality agent for public source freshness, anomaly evidence, and milestone verification.",
+        "metrics": {
+          "beneficiaries": 140000,
+          "unitCostGbp": 0.27,
+          "evidenceConfidence": 0.71,
+          "baselineProbability": 0.5,
+          "milestoneClarity": 0.78,
+          "openSourceReuse": 0.82,
+          "governanceTransparency": 0.84,
+          "privacyRightsFit": 0.88,
+          "deliveryRisk": 0.34,
+          "vanityProxyRisk": 0.18
+        },
+        "milestones": [
+          {
+            "id": "m1",
+            "label": "Public data ingestion and freshness report",
+            "dueInDays": 25,
+            "evidenceRequired": [
+              "source_registry",
+              "freshness_report",
+              "data_quality_tests"
+            ],
+            "releasePercent": 35
+          },
+          {
+            "id": "m2",
+            "label": "Cited alert workflow and false-positive review",
+            "dueInDays": 60,
+            "evidenceRequired": [
+              "alert_replay",
+              "false_positive_review",
+              "operator_signoff"
+            ],
+            "releasePercent": 40
+          },
+          {
+            "id": "m3",
+            "label": "Reusable remediation milestone template",
+            "dueInDays": 85,
+            "evidenceRequired": [
+              "template_docs",
+              "public_receipt",
+              "handover_notes"
+            ],
+            "releasePercent": 25
+          }
+        ]
+      },
+      {
+        "id": "app-reach-dashboard",
+        "applicant": "Civic Reach Dashboard",
+        "askGbp": 55000,
+        "category": "public-funding",
+        "summary": "Dashboard promising high social-media reach for civic campaigns, with unclear downstream impact and weak milestone evidence.",
+        "requestedAgentService": "Marketing metric agent for public engagement reporting.",
+        "metrics": {
+          "beneficiaries": 1800000,
+          "unitCostGbp": 0.03,
+          "evidenceConfidence": 0.38,
+          "baselineProbability": 0.72,
+          "milestoneClarity": 0.42,
+          "openSourceReuse": 0.35,
+          "governanceTransparency": 0.5,
+          "privacyRightsFit": 0.55,
+          "deliveryRisk": 0.48,
+          "vanityProxyRisk": 0.8
+        },
+        "milestones": [
+          {
+            "id": "m1",
+            "label": "Launch dashboard and audience report",
+            "dueInDays": 45,
+            "evidenceRequired": [
+              "traffic_report"
+            ],
+            "releasePercent": 60
+          },
+          {
+            "id": "m2",
+            "label": "Publish final engagement summary",
+            "dueInDays": 90,
+            "evidenceRequired": [
+              "engagement_summary"
+            ],
+            "releasePercent": 40
+          }
+        ]
+      }
+    ],
+    "decisions": [
+      {
+        "rank": 1,
+        "applicationId": "app-planning-commons",
+        "applicant": "Open Planning Evidence Commons",
+        "status": "fund",
+        "score": 81.72,
+        "recommendedAwardGbp": 72000,
+        "metricBreakdown": {
+          "impact": 81,
+          "counterfactual": 72,
+          "milestone": 90,
+          "commons": 95,
+          "governance": 88,
+          "rights": 80,
+          "antiGaming": 92
+        },
+        "counterfactual": "Baseline probability 28% means additionality score 72/100.",
+        "rationale": [
+          "Expected impact is adjusted by evidence confidence (82%) and delivery risk (22%).",
+          "Counterfactual score uses baseline probability 28%, not the applicant's claimed reach.",
+          "Milestone release is tied to repo_commit, schema_docs, source_license_table, replay_dataset_hash.",
+          "Reusable public-good output and auditability are strong enough for funding."
+        ],
+        "milestoneGate": "35% after Publish schema, policy-source connector, and sample authority pack | 40% after Run replay on 250 public appeal decisions with citation coverage report | 25% after Council handover pack and appeal-record API",
+        "requiredApprovals": [
+          "@programme-owner",
+          "@finance",
+          "@public-audit"
+        ],
+        "receiptHash": "sha256:35dbac22256b50a0c48c0ddbcd20479bd9439d48e90f4f3025e81086f2111e2b"
+      },
+      {
+        "rank": 2,
+        "applicationId": "app-rights-advice",
+        "applicant": "Tenant Rights Access Lab",
+        "status": "fund",
+        "score": 61.51,
+        "recommendedAwardGbp": 46000,
+        "metricBreakdown": {
+          "impact": 14,
+          "counterfactual": 66,
+          "milestone": 82,
+          "commons": 86,
+          "governance": 72,
+          "rights": 94,
+          "antiGaming": 88
+        },
+        "counterfactual": "Baseline probability 34% means additionality score 66/100.",
+        "rationale": [
+          "Expected impact is adjusted by evidence confidence (76%) and delivery risk (30%).",
+          "Counterfactual score uses baseline probability 34%, not the applicant's claimed reach.",
+          "Milestone release is tied to acl_test_log, redaction_log, threat_model, case_replay."
+        ],
+        "milestoneGate": "45% after Permissioned retrieval prototype with redaction audit log | 35% after Advice bundle workflow tested with public sample cases | 20% after Forkable deployment guide for advice charities",
+        "requiredApprovals": [
+          "@programme-owner",
+          "@finance",
+          "@public-audit"
+        ],
+        "receiptHash": "sha256:000056309ac590d8c3dc35b84c023ec0d9b10cd8b43788badfa5e8c8f8804275"
+      },
+      {
+        "rank": 3,
+        "applicationId": "app-env-monitor",
+        "applicant": "River Watch Commons",
+        "status": "decline",
+        "score": 59.17,
+        "recommendedAwardGbp": 0,
+        "metricBreakdown": {
+          "impact": 22,
+          "counterfactual": 50,
+          "milestone": 78,
+          "commons": 82,
+          "governance": 84,
+          "rights": 88,
+          "antiGaming": 82
+        },
+        "counterfactual": "Baseline probability 50% means additionality score 50/100.",
+        "rationale": [
+          "Expected impact is adjusted by evidence confidence (71%) and delivery risk (34%).",
+          "Counterfactual score uses baseline probability 50%, not the applicant's claimed reach.",
+          "Milestone release is tied to source_registry, freshness_report, data_quality_tests, alert_replay."
+        ],
+        "milestoneGate": "35% after Public data ingestion and freshness report | 40% after Cited alert workflow and false-positive review | 25% after Reusable remediation milestone template",
+        "requiredApprovals": [
+          "@programme-owner"
+        ],
+        "receiptHash": "sha256:53d479b49afdb0132f53d5de9b40142a5083a68d997f42cdeb8bd8312c253f7f"
+      },
+      {
+        "rank": 4,
+        "applicationId": "app-reach-dashboard",
+        "applicant": "Civic Reach Dashboard",
+        "status": "decline",
+        "score": 38.6,
+        "recommendedAwardGbp": 0,
+        "metricBreakdown": {
+          "impact": 100,
+          "counterfactual": 28,
+          "milestone": 42,
+          "commons": 35,
+          "governance": 50,
+          "rights": 55,
+          "antiGaming": 20
+        },
+        "counterfactual": "Baseline probability 72% means additionality score 28/100.",
+        "rationale": [
+          "Expected impact is adjusted by evidence confidence (38%) and delivery risk (48%).",
+          "Counterfactual score uses baseline probability 72%, not the applicant's claimed reach.",
+          "Milestone release is tied to traffic_report, engagement_summary.",
+          "Vanity proxy risk is high, so the allocation engine applies a penalty."
+        ],
+        "milestoneGate": "60% after Launch dashboard and audience report | 40% after Publish final engagement summary",
+        "requiredApprovals": [
+          "@programme-owner"
+        ],
+        "receiptHash": "sha256:9bb2a3b25f3fd0b607296702719d51489ba044b5e93fcb58da9186e6a67a3157"
+      }
+    ],
+    "allocationHash": "sha256:736ff5903ef94a0376f3c1871b67509942ec627a4b72b9b74bdacc9e35a92fca",
+    "reusableInterfaces": [
+      "POST /api/public-funding/agent-economy with budgetGbp to recalculate the grant portfolio",
+      "FundingDecision.receiptHash for appeal-ready public receipts",
+      "GrantMilestone.evidenceRequired for modular milestone verification",
+      "AgentEconomyWorkflow.ledger for CoralOS-style WANT to RELEASED settlement records"
+    ]
+  },
+  "coralStuk": {
+    "coralSession": {
+      "namespace": "mandate-public-funding",
+      "sessionId": "gcc-agent-economy-df922aa4",
+      "thread": "public-grant-verification-market",
+      "agents": [
+        "mandate-public-authority-buyer",
+        "milestone-verifier-premium",
+        "impact-rubric-fast",
+        "audit-pack-budget",
+        "mandate-independent-verifier"
+      ]
+    },
+    "want": {
+      "buyer": "mandate-public-authority-buyer",
+      "service": "Verify first milestone evidence for Open Planning Evidence Commons",
+      "maxPriceLamports": 35000000,
+      "acceptanceTest": [
+        "budget_lane",
+        "acceptance_test",
+        "delivery_proof",
+        "public_receipt"
+      ]
+    },
+    "bids": [
+      {
+        "agent": "milestone-verifier-premium",
+        "service": "Independent grant milestone verification",
+        "priceLamports": 27500000,
+        "priceGbp": 26.5,
+        "qualityScore": 92,
+        "reputationScore": 88,
+        "deliveryMinutes": 42,
+        "evidence": [
+          "source_citation_check",
+          "repo_artifact_hash",
+          "milestone_acceptance_test"
+        ]
+      },
+      {
+        "agent": "impact-rubric-fast",
+        "service": "Impact and counterfactual review",
+        "priceLamports": 18000000,
+        "priceGbp": 17.4,
+        "qualityScore": 78,
+        "reputationScore": 73,
+        "deliveryMinutes": 28,
+        "evidence": [
+          "rubric_score_replay",
+          "counterfactual_note"
+        ]
+      },
+      {
+        "agent": "audit-pack-budget",
+        "service": "Public receipt pack generation",
+        "priceLamports": 12500000,
+        "priceGbp": 12.1,
+        "qualityScore": 68,
+        "reputationScore": 66,
+        "deliveryMinutes": 18,
+        "evidence": [
+          "receipt_template",
+          "appeal_record_outline"
+        ]
+      }
+    ],
+    "award": {
+      "winner": "milestone-verifier-premium",
+      "reason": "Highest combined quality, reputation, evidence coverage, and price-fit score under the Mandate budget cap.",
+      "score": 71.79
+    },
+    "escrow": {
+      "chain": "solana:devnet",
+      "reference": "df922aa479736f2cd5fc0a7e4932c9bc",
+      "amountLamports": 27500000,
+      "releaseCapability": "pay.agent.vendor",
+      "explorerHint": "https://explorer.solana.com/?cluster=devnet"
+    },
+    "ledger": [
+      {
+        "state": "WANT",
+        "actor": "mandate-public-authority-buyer",
+        "message": "Need milestone verification for Open Planning Evidence Commons; budget cap 35000000 lamports; acceptance test requires cited evidence and delivery hash.",
+        "receiptHash": "sha256:78949085cf4c2140e5538f9ea1c16f419eef0f16182daaeb3be778d43e6db578"
+      },
+      {
+        "state": "BID",
+        "actor": "milestone-verifier-premium",
+        "message": "Independent grant milestone verification for 27500000 lamports with evidence source_citation_check, repo_artifact_hash, milestone_acceptance_test.",
+        "receiptHash": "sha256:ce9337ac7edfa7471f1186f200a442f5217c2aa1d1450c380e6c997068dd5e1d"
+      },
+      {
+        "state": "BID",
+        "actor": "impact-rubric-fast",
+        "message": "Impact and counterfactual review for 18000000 lamports with evidence rubric_score_replay, counterfactual_note.",
+        "receiptHash": "sha256:991f3b277777695011cb9af9a9e2e88b6eb1e11cb79d0d9c683d10728f7eaa22"
+      },
+      {
+        "state": "BID",
+        "actor": "audit-pack-budget",
+        "message": "Public receipt pack generation for 12500000 lamports with evidence receipt_template, appeal_record_outline.",
+        "receiptHash": "sha256:02862a6e03f8d3265d24679ad4bf4094cc44a1bb88726e265d5e8545fc8a2ad2"
+      },
+      {
+        "state": "AWARD",
+        "actor": "mandate-public-authority-buyer",
+        "message": "Awarded to milestone-verifier-premium. Highest combined quality, reputation, evidence coverage, and price-fit score under the Mandate budget cap.",
+        "receiptHash": "sha256:83f631864d8fb49010349a953570283df93132ec4016d2d8cb41f386b4e42824"
+      },
+      {
+        "state": "DEPOSITED",
+        "actor": "mandate-solana-escrow-adapter",
+        "message": "Prepared devnet escrow reference df922aa479736f2cd5fc0a7e4932c9bc; funds release is still gated by Mandate capability pay.agent.vendor.",
+        "receiptHash": "sha256:a75c6d54155a441a4e6df84242254951e7a48982825727c94c10f3a937e4a70c"
+      },
+      {
+        "state": "DELIVERED",
+        "actor": "milestone-verifier-premium",
+        "message": "Delivered verification bundle hash-bound to sha256:283bdbe8f2663f22eee62810285bf08c604c47ebe10f3d44f05b1f16349c1f96.",
+        "receiptHash": "sha256:283bdbe8f2663f22eee62810285bf08c604c47ebe10f3d44f05b1f16349c1f96"
+      },
+      {
+        "state": "VERIFIED",
+        "actor": "mandate-independent-verifier",
+        "message": "Verifier passed cited evidence, milestone acceptance tests, and public receipt completeness.",
+        "receiptHash": "sha256:38bb24a4bf7963749bd9c387c03544f11530def3051ad7c13c59da28c762ea3f"
+      },
+      {
+        "state": "RELEASED",
+        "actor": "mandate-capability-gate",
+        "message": "Released pay.agent.vendor only after budget lane, acceptance test, delivery proof, and finance approval.",
+        "receiptHash": "sha256:26948fdf6e2f9ca56faad88c9bd3280beed30f8efcf9bc804d142bdae41b8ad8"
+      }
+    ]
+  },
+  "gccAttestation": {
+    "sdk": "@ethereum-attestation-service/eas-sdk",
+    "schema": "bytes32 rubricHash,bytes32 allocationHash,string publicBody,uint64 budgetGbp,uint64 fundedCount,string decision",
+    "encodedData": "0xfaa5be03b0b806723fb9f2816bc04eaace3f3e9e6a6ecab264f26f41f7dfb9de736ff5903ef94a0376f3c1871b67509942ec627a4b72b9b74bdacc9e35a92fca00000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000001d4c000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000001e554b205075626c6963204469676974616c20436f6d6d6f6e732046756e640000000000000000000000000000000000000000000000000000000000000000002466756e645f746f705f72616e6b65645f776974685f6d696c6573746f6e655f676174657300000000000000000000000000000000000000000000000000000000",
+    "fields": {
+      "rubricHash": "0xfaa5be03b0b806723fb9f2816bc04eaace3f3e9e6a6ecab264f26f41f7dfb9de",
+      "allocationHash": "0x736ff5903ef94a0376f3c1871b67509942ec627a4b72b9b74bdacc9e35a92fca",
+      "publicBody": "UK Public Digital Commons Fund",
+      "budgetGbp": 120000,
+      "fundedCount": 2,
+      "decision": "fund_top_ranked_with_milestone_gates"
+    }
+  },
+  "solanaAction": {
+    "sdk": "@solana/actions",
+    "actionUrl": "solana-action:http://127.0.0.1:5173/api/solana/action/public-funding-release",
+    "headers": {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, Content-Encoding, Accept-Encoding, X-Accept-Action-Version, X-Accept-Blockchain-Ids",
+      "Access-Control-Expose-Headers": "X-Action-Version, X-Blockchain-Ids",
+      "Content-Type": "application/json",
+      "X-Blockchain-Ids": "solana:devnet",
+      "X-Action-Version": "2.4"
+    },
+    "metadata": {
+      "title": "Mandate public funding verifier release",
+      "label": "Sign funding release",
+      "description": "Hash-only Solana devnet receipt for a paid verifier-agent release after Mandate policy passes.",
+      "escrowReference": "df922aa479736f2cd5fc0a7e4932c9bc",
+      "amountLamports": 27500000
+    }
+  },
+  "mandatePolicyCheck": {
+    "allocationCapability": "allocate.public_funding",
+    "paymentCapability": "pay.agent.vendor",
+    "secretExposedToModel": false,
+    "finalDecisionPath": "deterministic"
+  }
+}
