@@ -1,6 +1,6 @@
 # Mandate Evidence Producer
 
-This package is optional demo infrastructure for Mandate. It produces the JSON evidence packet that the control room can treat as the output of an isolated agent run.
+This package produces JSON evidence packets that the control room can treat as the output of isolated agent work.
 
 Integration language:
 
@@ -10,7 +10,7 @@ Integration language:
 - scoped capability release
 - receipt
 
-For the finals demo, the runner emits a `mandate-run-42.json` like:
+The runner emits a `mandate-run-42.json` like:
 
 ```json
 {
@@ -24,7 +24,7 @@ For the finals demo, the runner emits a `mandate-run-42.json` like:
     "product_quality.recommendation_tradeoff",
     "test_oracle.integration",
     "commercial.external_commitment",
-    "agent_economy.spend",
+    "verifier_procurement.spend",
     "regulated.customer_decision"
   ],
   "suggestedSplits": [
@@ -34,7 +34,7 @@ For the finals demo, the runner emits a `mandate-run-42.json` like:
     "recommendation-eval-task",
     "blocked-test-oracle-change",
     "procurement-response-task",
-    "agent-spend-settlement-task",
+    "verifier-payment-settlement-task",
     "kyc-outreach-review-task"
   ]
 }
@@ -42,7 +42,7 @@ For the finals demo, the runner emits a `mandate-run-42.json` like:
 
 ## Environment
 
-No external account is required for the deterministic evidence producer or the public-funding agent-economy artifact.
+No external account is required for the deterministic evidence producer or the public-funding verifier-procurement artifact.
 
 The Fetch.ai entry point requires Python dependencies from `requirements.txt` if you want to run the local `uagents` server.
 
@@ -52,16 +52,16 @@ The Fetch.ai entry point requires Python dependencies from `requirements.txt` if
 cd agent
 npm install
 npm run fast-tax:evidence
-npm run public-funding:agent-economy
+npm run public-funding:verifier-procurement
 ```
 
 The default output path is `agent/output/mandate-run-42.json`. Override it with `-- --output output/custom-run.json`.
 
-The public-funding and agent-economy artifact is `agent/output/public-funding-agent-economy.json`. It contains:
+The public-funding and verifier-procurement artifact is `agent/output/public-funding-verifier-procurement.json`. It contains:
 
 - GCC & ETH allocation decisions and encoded attestation data.
-- CoralOS/STUK-style agent economy states from WANT through RELEASED.
-- Hash-only receipt action metadata for verifier-agent payment release.
+- Verifier procurement states from request through release.
+- Hash-only receipt action metadata for verifier payment release.
 
 Fetch.ai local action-readiness agent:
 

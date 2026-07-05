@@ -5,10 +5,8 @@
     Bell,
     ChevronDown,
     Circle,
-    Check,
     FileDiff,
     Hash,
-    KeyRound,
     LayoutDashboard,
     LockKeyhole,
     MoreHorizontal,
@@ -20,55 +18,29 @@
   } from '@lucide/svelte';
   import {
     channels,
-    coreObservations,
-    demoExamples,
     personas,
     product,
     seedMessages,
-    integrationTracks,
     type Message
   } from '$lib/demoData';
 
-  type ReleaseOptions = {
-    prNumber?: number;
-    targetRepo?: string;
-    status?: string;
-    approvals?: string[];
-    evidenceKeys?: string[];
-    receiptRail?: string;
-  };
-
   let selectedChannelId = 'agent-approvals';
-  let selectedPersonaId = 'agent';
+  let selectedPersonaId = '';
+  let accountSelected = false;
   let searchText = '';
   let composer = '';
   let composerEl: HTMLTextAreaElement;
   let messagesEl: HTMLDivElement;
   let messages: Message[] = [...seedMessages];
-  const demoPrompt = product.demoPrompt;
+  const requestPrompt = product.requestTemplate;
   const pricingPrNumber = 1;
   const pricingRepo = 'yavol/fast-tax';
-  const pricingPrUrl = `https://github.com/${pricingRepo}/pull/${pricingPrNumber}`;
-  const finalPricingEvidence = ['pricing_replay', 'pricing_contract_tests', 'checkout_integration_tests'];
-  let receiptRail = 'local';
   let botStatus = '';
-  let demoRunId = 0;
-  let tryReleasePending = false;
-  let pricingDemo = {
-    active: false,
-    productApproved: false,
-    productPending: false,
-    financeApproved: false,
-    financePending: false,
-    checksPassed: false,
-    released: false,
-    releasePending: false,
-    approvalError: '',
-    releaseError: ''
-  };
+  let requestRunId = 0;
 
   $: selectedChannel = channels.find((channel) => channel.id === selectedChannelId) ?? channels[0];
-  $: selectedPersona = personas.find((persona) => persona.id === selectedPersonaId) ?? personas[0];
+  $: accountOptions = personas.filter((persona) => persona.id !== 'agent');
+  $: selectedPersona = personas.find((persona) => persona.id === selectedPersonaId) ?? accountOptions[0] ?? personas[0];
   $: channelMessages = messages.filter((message) => message.channelId === selectedChannelId);
   $: filteredChannels = channels.filter((channel) =>
     `${channel.name} ${channel.topic} ${channel.layer}`.toLowerCase().includes(searchText.toLowerCase())
@@ -117,42 +89,29 @@
     status = 'Mandate is working...'
   ) {
     for (const message of newMessages) {
-      if (runId !== demoRunId) return;
+      if (runId !== requestRunId) return;
       botStatus = status;
       await scrollMessagesToBottom();
       await delay();
-      if (runId !== demoRunId) return;
+      if (runId !== requestRunId) return;
       botStatus = '';
       appendMessages([message]);
       await delay(1200, 1900);
     }
   }
 
-  async function startPricingDemo() {
-    const runId = ++demoRunId;
+  async function startLaunchRequest() {
+    const runId = ++requestRunId;
     botStatus = '';
-    pricingDemo = {
-      active: true,
-      productApproved: false,
-      productPending: false,
-      financeApproved: false,
-      financePending: false,
-      checksPassed: false,
-      released: false,
-      releasePending: false,
-      approvalError: '',
-      releaseError: ''
-    };
 
     selectedChannelId = 'agent-approvals';
-    tryReleasePending = false;
     appendMessages([
       {
         channelId: 'agent-approvals',
         author: selectedPersona.name,
         role: selectedPersona.role,
         avatar: selectedPersona.avatar,
-        body: demoPrompt,
+        body: requestPrompt,
         kind: 'normal'
       }
     ]);
@@ -165,214 +124,31 @@
           role: 'enterprise agent',
           avatar: 'MA',
           body:
-            `Working across Fast Tax as the company-level agent, not as the requester. Found one safe performance change, one pricing change, one provider switch, one recommendation threshold, one protected test deletion, and one procurement action. Opened PR #${pricingPrNumber}: Launch promo pricing.`,
+            `Opened PR #${pricingPrNumber}: Launch promo pricing. I also found a safe OCR performance change, a provider fallback, a recommendation threshold change, a protected test deletion, and a procurement action that need separate review paths.`,
           kind: 'agent',
-          tags: ['company agent', `${pricingRepo}#${pricingPrNumber}`, 'authority peel']
+          tags: [`${pricingRepo}#${pricingPrNumber}`, 'review paths']
         },
         {
           channelId: 'agent-approvals',
           author: 'Mandate Agent',
-          role: 'authority fabric',
+          role: 'release control',
           avatar: 'MA',
           body:
-            'Authority report: performance can release now; money.pricing needs @finance and @product; vendor.api_provider needs platform and security; commercial.external_commitment needs legal and delivery; deleted integration test is blocked. Capabilities stay withheld until each policy passes.',
+            'OCR performance can release now. Pricing needs @finance, @product, and replay evidence. Provider fallback needs platform and security review. The deleted checkout test is blocked until QA restores coverage.',
           kind: 'report',
-          tags: ['money.pricing', 'provider', 'tender', 'test oracle']
-        },
-        {
-          channelId: 'agent-approvals',
-          author: 'Mandate Agent',
-          role: 'coverage router',
-          avatar: 'MA',
-          body:
-            'Coverage map: this one run covers ERP pricing replay, vendor privacy, KYC and tender commitments, clinical-style eligibility review, grid dispatch, and proof-before-pay agent spend. Those are plugins under one authority fabric, not separate demos. Every waiting or blocked gate also teaches the next safe step.',
-          kind: 'report',
-          tags: ['pricing', 'vendor', 'KYC', 'clinical', 'grid', 'agent spend', 'teaching loop']
+          tags: ['pricing', 'provider', 'checkout test']
         }
       ],
-      'Mandate is peeling the agent run...'
+      'Mandate is checking the request...'
     );
-  }
-
-  async function releaseCapability(capability: string, options: ReleaseOptions = {}) {
-    const response = await fetch('/api/capability/release', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ capability, ...options })
-    });
-    const receipt = await response.json();
-
-    if (!response.ok) {
-      throw new Error(receipt.message || `Capability provider refused ${capability}.`);
-    }
-
-    return receipt;
-  }
-
-  function pricingApprovals() {
-    return [
-      ...(pricingDemo.financeApproved ? ['@finance'] : []),
-      ...(pricingDemo.productApproved ? ['@product'] : [])
-    ];
-  }
-
-  function pricingEvidenceKeys() {
-    return pricingDemo.checksPassed ? finalPricingEvidence : ['pricing_replay'];
-  }
-
-  async function approvePricing(group: 'product' | 'finance') {
-    const capability = group === 'product' ? 'approve.product' : 'approve.finance';
-    const isProduct = group === 'product';
-
-    pricingDemo = {
-      ...pricingDemo,
-      productPending: isProduct ? true : pricingDemo.productPending,
-      financePending: !isProduct ? true : pricingDemo.financePending,
-      approvalError: '',
-      releaseError: ''
-    };
-
-    try {
-      const receipt = await releaseCapability(capability);
-
-      pricingDemo = {
-        ...pricingDemo,
-        productApproved: isProduct ? true : pricingDemo.productApproved,
-        productPending: isProduct ? false : pricingDemo.productPending,
-        financeApproved: !isProduct ? true : pricingDemo.financeApproved,
-        financePending: !isProduct ? false : pricingDemo.financePending,
-        approvalError: ''
-      };
-
-      appendMessages([
-        {
-          channelId: 'agent-approvals',
-          author: 'Mandate Agent',
-          role: 'approval receipt gate',
-          avatar: 'MA',
-          body: `Approval receipt recorded for ${isProduct ? '@product' : '@finance'}. Secret exposed to model: ${receipt.secretExposedToModel}. Receipt type: ${receipt.receiptType}.`,
-          kind: 'report',
-          tags: ['demo approval receipt', capability]
-        },
-        {
-          channelId: 'agent-approvals',
-          author: isProduct ? 'Maya Chen' : 'Owen Rao',
-          role: isProduct ? '@product' : '@finance',
-          avatar: isProduct ? 'MC' : 'OR',
-          body: isProduct
-            ? 'Approved the launch promo from product. Keep it isolated in the pricing PR.'
-            : 'Approved the $15 promo from finance for the launch window.',
-          kind: 'approval',
-          tags: [isProduct ? '@product approved' : '@finance approved']
-        }
-      ]);
-    } catch (error) {
-      pricingDemo = {
-        ...pricingDemo,
-        productPending: isProduct ? false : pricingDemo.productPending,
-        financePending: !isProduct ? false : pricingDemo.financePending,
-        approvalError: error instanceof Error ? error.message : 'Approval receipt failed.'
-      };
-    }
-  }
-
-  async function passPricingChecks() {
-    const runId = demoRunId;
-    pricingDemo = { ...pricingDemo, checksPassed: true, releaseError: '' };
-    await appendScriptedMessages(
-      runId,
-      [
-        {
-          channelId: 'agent-approvals',
-          author: 'Mandate Agent',
-          role: 'CI runner',
-          avatar: 'MA',
-          body:
-            `pricing_replay, pricing_contract_tests, and checkout_integration_tests passed for PR #${pricingPrNumber}. Pricing policy now has the evidence it needs, but only the scoped pricing capability can release.`,
-          kind: 'agent',
-          tags: ['checks passed']
-        }
-      ],
-      'Mandate is running pricing checks...'
-    );
-  }
-
-  async function tryReleasePricingEarly() {
-    tryReleasePending = true;
-    pricingDemo = { ...pricingDemo, releaseError: '' };
-
-    try {
-      await releaseCapability('merge.money.pricing', {
-        prNumber: pricingPrNumber,
-        targetRepo: pricingRepo,
-        status: 'waiting',
-        approvals: pricingApprovals(),
-        evidenceKeys: pricingEvidenceKeys(),
-        receiptRail
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Mandate withheld pricing capability.';
-      pricingDemo = { ...pricingDemo, releaseError: message };
-      appendMessages([
-        {
-          channelId: 'agent-approvals',
-          author: 'Mandate Agent',
-          role: 'capability gate',
-          avatar: 'MA',
-          body: `Refused early release for merge.money.pricing. ${message}`,
-          kind: 'report',
-          tags: ['withheld', 'policy enforced']
-        }
-      ]);
-    } finally {
-      tryReleasePending = false;
-    }
-  }
-
-  async function releasePricingCredential() {
-    pricingDemo = { ...pricingDemo, releasePending: true, releaseError: '' };
-
-    try {
-      const receipt = await releaseCapability('merge.money.pricing', {
-        prNumber: pricingPrNumber,
-        targetRepo: pricingRepo,
-        status: 'proof',
-        approvals: ['@finance', '@product'],
-        evidenceKeys: finalPricingEvidence,
-        receiptRail
-      });
-
-      pricingDemo = { ...pricingDemo, releasePending: false, released: true };
-      await appendScriptedMessages(
-        demoRunId,
-        [
-          {
-            channelId: 'agent-approvals',
-          author: 'Mandate Agent',
-          role: 'capability gate',
-          avatar: 'MA',
-          body: `Mandate released ${receipt.capability} for one approved action. Secret exposed to model: ${receipt.secretExposedToModel}. TTL: ${receipt.ttlSeconds}s. Rail: ${receipt.receiptRail}. Evidence: ${receipt.evidenceHash}. Receipt: ${receipt.receiptHash}. ${pricingRepo}#${pricingPrNumber} is ready for the controlled merge path.`,
-          kind: 'report',
-          tags: ['receipt', 'capability released', receipt.receiptRail]
-          }
-        ],
-        'Mandate is releasing merge.money.pricing...'
-      );
-    } catch (error) {
-      pricingDemo = {
-        ...pricingDemo,
-        releasePending: false,
-        releaseError: error instanceof Error ? error.message : 'Release failed.'
-      };
-    }
   }
 
   function sendMessage() {
     const text = (composer || composerEl?.value || '').trim();
     if (!text) return;
 
-    if (/@(codeonion|mandate)/i.test(text) && /price|pricing|\$15|15|provider|vendor|ocr/.test(text.toLowerCase())) {
-      startPricingDemo();
+    if (/@mandate/i.test(text) && /price|pricing|\$15|15|provider|vendor|ocr/.test(text.toLowerCase())) {
+      startLaunchRequest();
       composer = '';
       if (composerEl) composerEl.value = '';
       return;
@@ -397,18 +173,51 @@
     if (composerEl) composerEl.value = '';
   }
 
+  function chooseAccount(id: string) {
+    selectedPersonaId = id;
+    accountSelected = true;
+    window.sessionStorage.setItem('mandateSelectedAccount', id);
+  }
+
   onMount(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('demo') === '1') {
-      void startPricingDemo();
+    const savedAccount = window.sessionStorage.getItem('mandateSelectedAccount');
+    if (savedAccount && accountOptions.some((persona) => persona.id === savedAccount)) {
+      selectedPersonaId = savedAccount;
+      accountSelected = true;
     }
   });
 </script>
 
 <svelte:head>
-  <title>Mandate Slack Demo</title>
+  <title>Mandate</title>
 </svelte:head>
 
+{#if !accountSelected}
+  <main class="login-shell" aria-label="Choose account">
+    <section class="login-panel">
+      <div class="login-brand">
+        <span class="workspace">FT</span>
+        <div>
+          <p class="eyebrow">FastTax workspace</p>
+          <h1>Sign in to Mandate</h1>
+          <p>Select a pre-configured employee account for this workspace.</p>
+        </div>
+      </div>
+
+      <div class="account-list">
+        {#each accountOptions as persona}
+          <button type="button" on:click={() => chooseAccount(persona.id)}>
+            <span class="avatar" style={`--avatar:${persona.color}`}>{persona.avatar}</span>
+            <span>
+              <strong>{persona.name}</strong>
+              <small>{persona.role}</small>
+            </span>
+          </button>
+        {/each}
+      </div>
+    </section>
+  </main>
+{:else}
 <main class="shell">
   <aside class="workspace-rail" aria-label="Workspaces">
     <a class="workspace active" href="/" aria-label="FastTax Slack workspace">FT</a>
@@ -502,9 +311,9 @@
           Mandate
         </a>
         <label class="persona-picker" for="persona">
-          <span>Acting as</span>
+          <span>Signed in as</span>
           <select id="persona" bind:value={selectedPersonaId}>
-            {#each personas as persona}
+            {#each accountOptions as persona}
               <option value={persona.id}>{persona.name}</option>
             {/each}
           </select>
@@ -512,34 +321,11 @@
         <button class="icon-button" aria-label="Notifications">
           <Bell size={18} />
         </button>
-        <button class="demo-launch" type="button" on:click={startPricingDemo}>
-          <FileDiff size={16} />
-          Run finals demo
-        </button>
         <button class="icon-button" aria-label="More actions">
           <MoreHorizontal size={18} />
         </button>
       </div>
     </header>
-
-    <section class="integration-strip" aria-label="Integration coverage">
-      {#each integrationTracks.slice(0, 7) as track}
-        <article>
-          <strong>{track.name}</strong>
-          <span>{track.examples.slice(0, 2).join(' / ')}</span>
-        </article>
-      {/each}
-    </section>
-
-    <section class="premise-strip" aria-label="Mandate operating model">
-      {#each coreObservations as observation}
-        <article>
-          <strong>{observation.title}</strong>
-          <p>{observation.body}</p>
-          <span>{observation.proof}</span>
-        </article>
-      {/each}
-    </section>
 
     <div class="messages" bind:this={messagesEl} aria-live="polite">
       {#each channelMessages as message}
@@ -593,108 +379,10 @@
       {/if}
     </div>
 
-    {#if pricingDemo.active}
-      <section class="demo-card" aria-label="Pricing authority workflow">
-        <div>
-          <p class="eyebrow">Live finals demo</p>
-          <div class="demo-heading">
-            <h3>Mandate run #42: company-wide agent request</h3>
-            <a class="pr-link" href={pricingPrUrl} target="_blank" rel="noreferrer">
-              {pricingRepo}#{pricingPrNumber}
-            </a>
-          </div>
-          <p>
-            One broad agent request touched pricing, providers, recommendation quality, procurement
-            commitments, safe implementation code, and a protected test oracle. The pricing PR is
-            shown here; the dashboard shows the full authority peel.
-          </p>
-        </div>
-
-        <div class="coverage-list" aria-label="Capability coverage examples">
-          {#each demoExamples as example}
-            <article>
-              <span>{example.id}</span>
-              <strong>{example.action}</strong>
-              <small>{example.gate}</small>
-            </article>
-          {/each}
-        </div>
-
-        <div class="demo-steps">
-          <label class="receipt-rail" for="slack-receipt-rail">
-            <span>Receipt rail</span>
-            <select id="slack-receipt-rail" bind:value={receiptRail}>
-              <option value="local">Local</option>
-              <option value="ethereum:eas">Ethereum</option>
-              <option value="solana:devnet">Solana</option>
-            </select>
-          </label>
-          <button
-            class="try-release"
-            type="button"
-            on:click={tryReleasePricingEarly}
-            disabled={pricingDemo.released || tryReleasePending}
-          >
-            <LockKeyhole size={15} />
-            {tryReleasePending ? 'checking' : 'Try release now'}
-          </button>
-          <button
-            class:done={pricingDemo.productApproved}
-            type="button"
-            on:click={() => approvePricing('product')}
-            disabled={pricingDemo.productApproved || pricingDemo.productPending}
-          >
-            <Check size={15} />
-            {pricingDemo.productPending ? 'recording' : '@product'}
-          </button>
-          <button
-            class:done={pricingDemo.financeApproved}
-            type="button"
-            on:click={() => approvePricing('finance')}
-            disabled={pricingDemo.financeApproved || pricingDemo.financePending}
-          >
-            <Check size={15} />
-            {pricingDemo.financePending ? 'recording' : '@finance'}
-          </button>
-          <button
-            class:done={pricingDemo.checksPassed}
-            type="button"
-            on:click={passPricingChecks}
-            disabled={!pricingDemo.productApproved || !pricingDemo.financeApproved || pricingDemo.checksPassed}
-          >
-            <FileDiff size={15} />
-            tests
-          </button>
-          <button
-            class="release"
-            class:done={pricingDemo.released}
-            type="button"
-            on:click={releasePricingCredential}
-            disabled={!pricingDemo.checksPassed || pricingDemo.released || pricingDemo.releasePending}
-          >
-            <KeyRound size={15} />
-            {pricingDemo.releasePending
-              ? 'releasing'
-              : pricingDemo.released
-                ? 'released'
-              : 'Release capability'}
-          </button>
-        </div>
-
-        {#if pricingDemo.approvalError}
-          <p class="release-error">{pricingDemo.approvalError}</p>
-        {/if}
-
-        {#if pricingDemo.releaseError}
-          <p class="release-error">{pricingDemo.releaseError}</p>
-        {/if}
-      </section>
-    {/if}
-
     <form class="composer" on:submit|preventDefault={sendMessage}>
-      <button class="quick-demo" type="button" on:click={startPricingDemo}>
+      <button class="quick-request" type="button" on:click={startLaunchRequest}>
         <FileDiff size={16} />
-        Run finals demo
+        New request
       </button>
       <div class="composer-tools">
         <button type="button" aria-label="Attach file">
@@ -703,15 +391,15 @@
         <button type="button" aria-label="Mention">
           <AtSign size={17} />
         </button>
-        <button type="button" aria-label="Run price drop demo" on:click={startPricingDemo}>
+        <button type="button" aria-label="Start request" on:click={startLaunchRequest}>
           <FileDiff size={17} />
         </button>
       </div>
       <textarea
         bind:this={composerEl}
         bind:value={composer}
-        rows="2"
-        placeholder={`Try ${demoPrompt}`}
+        rows="1"
+        placeholder={`Message #${selectedChannel.name}`}
         on:keydown={(event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -726,6 +414,7 @@
     </form>
   </section>
 </main>
+{/if}
 
 <style>
   :global(*) {
@@ -770,6 +459,97 @@
     height: 100dvh;
     min-height: 0;
     overflow: hidden;
+  }
+
+  .login-shell {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 100dvh;
+    padding: 24px;
+    background:
+      linear-gradient(90deg, rgba(35, 51, 41, 0.05) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(35, 51, 41, 0.05) 1px, transparent 1px),
+      #f4f1ea;
+    background-size: 28px 28px;
+  }
+
+  .login-panel {
+    display: grid;
+    gap: 24px;
+    width: min(100%, 560px);
+    border: 1px solid #d3c4aa;
+    border-radius: 8px;
+    background: #fffdf7;
+    padding: 24px;
+    box-shadow: 0 24px 80px rgba(37, 33, 24, 0.14);
+  }
+
+  .login-brand {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .login-brand .workspace {
+    flex: 0 0 auto;
+  }
+
+  .login-brand h1 {
+    margin-bottom: 8px;
+    color: #1f2d24;
+  }
+
+  .login-brand p:not(.eyebrow) {
+    color: #655d51;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
+    line-height: 1.45;
+  }
+
+  .account-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .account-list button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    border: 1px solid #d5c9b5;
+    border-radius: 8px;
+    background: #fffaf0;
+    padding: 12px;
+    color: #1f241f;
+    text-align: left;
+  }
+
+  .account-list button:hover,
+  .account-list button:focus-visible {
+    outline: 2px solid #f3b93f;
+    outline-offset: 2px;
+  }
+
+  .account-list strong,
+  .account-list small {
+    display: block;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
+  }
+
+  .account-list strong {
+    font-weight: 900;
+  }
+
+  .account-list small {
+    margin-top: 3px;
+    color: #665f52;
+    font-size: 0.86rem;
   }
 
   .workspace-rail {
@@ -846,98 +626,6 @@
   .message-meta {
     display: flex;
     align-items: center;
-  }
-
-  .integration-strip {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 8px;
-    min-width: 0;
-    padding: 10px 18px;
-    border-bottom: 1px solid #d8cbb9;
-    background: #faf2e3;
-  }
-
-  .integration-strip article {
-    display: grid;
-    gap: 2px;
-    min-width: 0;
-    border: 1px solid #ddcfb9;
-    border-radius: 8px;
-    background: #fffaf0;
-    padding: 8px;
-  }
-
-  .integration-strip strong,
-  .integration-strip span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-  }
-
-  .integration-strip strong {
-    color: #263126;
-    font-size: 0.74rem;
-    font-weight: 950;
-  }
-
-  .integration-strip span {
-    color: #6d604e;
-    font-size: 0.68rem;
-    font-weight: 800;
-  }
-
-  .premise-strip {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    min-width: 0;
-    padding: 10px 18px;
-    border-bottom: 1px solid #d8cbb9;
-    background: #fff8eb;
-  }
-
-  .premise-strip article {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-    border: 1px solid #dcc9a7;
-    border-left: 5px solid #244c3b;
-    border-radius: 8px;
-    background: #fffdf7;
-    padding: 10px;
-  }
-
-  .premise-strip strong,
-  .premise-strip p,
-  .premise-strip span {
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-  }
-
-  .premise-strip strong {
-    color: #1f2d24;
-    font-size: 0.84rem;
-    font-weight: 950;
-  }
-
-  .premise-strip p,
-  .premise-strip span {
-    color: #665947;
-    font-size: 0.74rem;
-    line-height: 1.28;
-  }
-
-  .premise-strip span {
-    color: #7b5b2b;
-    font-weight: 900;
   }
 
   .team-block {
@@ -1114,7 +802,7 @@
 
   .conversation {
     display: grid;
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     width: 100%;
     max-width: 100vw;
     height: 100dvh;
@@ -1164,7 +852,6 @@
   }
 
   .dashboard-link,
-  .demo-launch,
   .persona-picker {
     display: flex;
     align-items: center;
@@ -1185,14 +872,6 @@
 
   .dashboard-link {
     padding: 0 11px;
-    white-space: nowrap;
-  }
-
-  .demo-launch {
-    border: 1px solid #b45f2d;
-    padding: 0 12px;
-    background: #bb5b2a;
-    color: #fff8ed;
     white-space: nowrap;
   }
 
@@ -1386,196 +1065,13 @@
     }
   }
 
-  .demo-card {
-    display: grid;
-    grid-template-columns: minmax(300px, 0.85fr) minmax(420px, 1.15fr);
-    gap: 16px;
-    align-items: start;
-    margin: 0 18px 14px;
-    padding: 14px;
-    border: 1px solid #d5ad51;
-    border-radius: 8px;
-    background: #fff3d0;
-    box-shadow: 0 16px 38px rgba(90, 61, 15, 0.13);
-    max-height: 34dvh;
-    overflow-y: auto;
-  }
-
-  .demo-card > div {
-    min-width: 0;
-  }
-
-  .demo-card h3 {
-    margin: 0;
-    color: #201c13;
-    font-size: 1rem;
-    line-height: 1.15;
-  }
-
-  .demo-heading {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-
-  .pr-link {
-    color: #244c3b;
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-    font-size: 0.78rem;
-    font-weight: 900;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .demo-card p {
-    max-width: 68ch;
-    color: #5e513a;
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-    font-size: 0.88rem;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-  }
-
-  .demo-steps {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 7px;
-  }
-
-  .coverage-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 7px;
-    min-width: 0;
-  }
-
-  .coverage-list article {
-    display: grid;
-    gap: 3px;
-    min-width: 0;
-    border: 1px solid #ddc890;
-    border-radius: 8px;
-    background: #fffaf0;
-    padding: 8px;
-  }
-
-  .coverage-list span,
-  .coverage-list small,
-  .receipt-rail,
-  .receipt-rail select {
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-  }
-
-  .coverage-list span {
-    color: #93683a;
-    font-size: 0.66rem;
-    font-weight: 950;
-    text-transform: uppercase;
-  }
-
-  .coverage-list strong {
-    overflow-wrap: anywhere;
-    color: #201c13;
-    font-size: 0.76rem;
-    line-height: 1.15;
-  }
-
-  .coverage-list small {
-    color: #6c5f4c;
-    font-size: 0.68rem;
-    font-weight: 800;
-    line-height: 1.2;
-  }
-
-  .receipt-rail {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 34px;
-    color: #4f432f;
-    font-size: 0.76rem;
-    font-weight: 900;
-  }
-
-  .receipt-rail select {
-    height: 34px;
-    border: 1px solid #d0ba85;
-    border-radius: 8px;
-    background: #fffaf0;
-    color: #322a1a;
-    font-size: 0.78rem;
-    font-weight: 900;
-    padding: 0 8px;
-  }
-
-  .demo-steps button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 34px;
-    border: 1px solid #d0ba85;
-    border-radius: 8px;
-    background: #fffaf0;
-    color: #322a1a;
-    font-family:
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-    font-size: 0.78rem;
-    font-weight: 900;
-    padding: 0 10px;
-  }
-
-  .demo-steps button:disabled {
-    cursor: default;
-    opacity: 0.55;
-  }
-
-  .demo-steps button.done {
-    border-color: #2d6b4f;
-    background: #244c3b;
-    color: #fffdf5;
-    opacity: 1;
-  }
-
-  .demo-steps button.release:not(:disabled) {
-    border-color: #a65a28;
-    background: #bb5b2a;
-    color: #fff8ed;
-  }
-
-  .demo-steps button.try-release:not(:disabled) {
-    border-color: #9f4f42;
-    background: #f1ded8;
-    color: #7d352d;
-  }
-
-  .release-error {
-    grid-column: 1 / -1;
-    color: #8c2f22;
-    font-weight: 800;
-  }
-
   .composer {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 10px;
-    align-items: end;
+    align-items: center;
     margin: 0 18px 18px;
-    padding: 10px;
+    padding: 8px 10px;
     border: 1px solid #d2c6b4;
     border-radius: 8px;
     background: #fffdf8;
@@ -1589,13 +1085,13 @@
     padding-top: 3px;
   }
 
-  .quick-demo {
+  .quick-request {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
     min-width: 150px;
-    min-height: 38px;
+    min-height: 40px;
     border: 0;
     border-radius: 7px;
     background: #bb5b2a;
@@ -1627,8 +1123,9 @@
 
   .composer textarea {
     width: 100%;
-    min-height: 44px;
+    min-height: 40px;
     max-height: 110px;
+    padding: 10px 2px;
     border: 0;
     outline: 0;
     resize: none;
@@ -1640,7 +1137,7 @@
       system-ui,
       sans-serif;
     font-size: 0.94rem;
-    line-height: 1.4;
+    line-height: 20px;
   }
 
   .send-button {
@@ -1649,7 +1146,7 @@
     justify-content: center;
     gap: 7px;
     min-width: 82px;
-    height: 38px;
+    height: 40px;
     background: #244c3b;
     color: #fff;
     font-family:
@@ -1685,26 +1182,6 @@
       min-width: min(100%, 320px);
     }
 
-    .demo-launch {
-      display: none;
-    }
-
-    .integration-strip {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .premise-strip {
-      grid-template-columns: 1fr;
-    }
-
-    .demo-card {
-      grid-template-columns: 1fr;
-      align-items: stretch;
-    }
-
-    .coverage-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   @media (max-width: 640px) {
@@ -1747,21 +1224,13 @@
     .channel-title,
     .top-actions,
     .top-actions > *,
-    .integration-strip,
-    .premise-strip,
     .messages,
-    .demo-card,
     .composer {
       max-width: 100%;
     }
 
     .channel-title h2,
-    .premise-strip strong,
-    .premise-strip p,
-    .premise-strip span,
-    .message-body p,
-    .coverage-list strong,
-    .coverage-list small {
+    .message-body p {
       overflow-wrap: anywhere;
     }
 
@@ -1771,7 +1240,7 @@
       border-radius: 0;
     }
 
-    .quick-demo {
+    .quick-request {
       grid-column: 1 / -1;
       width: 100%;
     }
@@ -1781,23 +1250,9 @@
     }
 
     .composer textarea {
-      min-height: 58px;
+      min-height: 42px;
+      padding: 11px 2px;
     }
 
-    .integration-strip,
-    .premise-strip,
-    .coverage-list {
-      grid-template-columns: 1fr;
-    }
-
-    .integration-strip,
-    .premise-strip {
-      padding: 10px 18px;
-    }
-
-    .demo-card {
-      margin: 0 10px 10px;
-      max-height: 38dvh;
-    }
   }
 </style>

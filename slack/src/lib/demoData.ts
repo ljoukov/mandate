@@ -1,36 +1,10 @@
 export const product = {
   name: 'Mandate',
-  tagline: 'The enterprise authority fabric for AI agents',
-  thesis: 'One company agent. Many authority checks. Every gate teaches.',
-  demoPrompt:
-    '@Mandate make FastTax cheaper for launch, speed up OCR, test a new tax data provider, and onboard a vendor-risk agent'
+  tagline: 'Authority controls for governed AI work',
+  thesis: 'Route agent actions through accountable owners, evidence, and receipts.',
+  requestTemplate:
+    '@Mandate review the launch pricing change, OCR performance fix, provider fallback, and vendor-risk request'
 };
-
-export type CoreObservation = {
-  id: string;
-  title: string;
-  body: string;
-  proof: string;
-};
-
-export const coreObservations: CoreObservation[] = [
-  {
-    id: 'company-agent',
-    title: 'One logical company agent',
-    body:
-      'The requester starts the run, but the agent acts for FastTax, not under the requester. An intern can ask; Mandate still routes money, vendor, KYC, procurement, grid, and release actions to the company owners who hold authority.',
-    proof:
-      'Specialist demos and integration rails become tools of the company agent, then Mandate releases only the scoped capability that passed policy.'
-  },
-  {
-    id: 'teaching-gates',
-    title: 'Every gate can teach',
-    body:
-      'A refusal is not dead-end compliance. It tells the employee and future agents which evidence, owner, replay, eval, or memory check is missing, then stores that lesson in the receipt trail.',
-    proof:
-      'Approvals, denials, receipts, and replay results become reusable guidance for safer future work.'
-  }
-];
 
 export type Persona = {
   id: string;
@@ -76,27 +50,6 @@ export type Approval = {
   severity: 'safe' | 'review' | 'blocked';
 };
 
-export type IntegrationTrack = {
-  id: string;
-  name: string;
-  ask: string;
-  mandateMove: string;
-  crowding: 'crowded' | 'moderate' | 'open';
-  examples: string[];
-};
-
-export type AgentPlugin = {
-  id: string;
-  name: string;
-  borrowedFrom: string;
-  action: string;
-  evidence: string;
-  authorityLayer: string;
-  capability: string;
-  integrationFit: string[];
-  status: 'allowed' | 'waiting' | 'blocked' | 'proof';
-};
-
 export type AuthorityFinding = {
   id: string;
   action: string;
@@ -118,16 +71,6 @@ export type Receipt = {
   body: string;
   hash: string;
   tone: 'ok' | 'warning' | 'danger' | 'neutral';
-};
-
-export type DemoExample = {
-  id: string;
-  borrowedFrom: string;
-  action: string;
-  gate: string;
-  capability: string;
-  receipt: string;
-  rail: string;
 };
 
 export type EvidenceShot = {
@@ -194,12 +137,12 @@ export const channels: Channel[] = [
     layer: 'authority'
   },
   {
-    id: 'integrations-room',
-    name: 'integrations-room',
-    topic: 'Conduct, Fetch.ai, CoralOS/STUK, and GCC & ETH integration fit',
+    id: 'authority-map',
+    name: 'authority-map',
+    topic: 'Cross-system actions, owners, evidence, receipts, and blocked paths',
     unread: 4,
     status: 'active',
-    layer: 'integration'
+    layer: 'authority'
   },
   {
     id: 'tax-engine',
@@ -242,111 +185,6 @@ export const channels: Channel[] = [
   }
 ];
 
-export const integrationTracks: IntegrationTrack[] = [
-  {
-    id: 'conduct',
-    name: 'Conduct AI',
-    ask: 'Make slow enterprise work move faster while humans stay in control.',
-    mandateMove:
-      'One broad agent request becomes safe PRs, blocked actions, behavior gates, and owner approvals.',
-    crowding: 'crowded',
-    examples: ['pricing', 'legacy', 'kyc', 'field safety']
-  },
-  {
-    id: 'fetch',
-    name: 'Fetch.ai',
-    ask: 'Expose a useful agent through Agentverse and complete work from conversation.',
-    mandateMove:
-      'A judge can ask: can this action proceed? Mandate returns allowed, waiting, or blocked with receipts.',
-    crowding: 'crowded',
-    examples: ['action readiness', 'vendor risk', 'grid']
-  },
-  {
-    id: 'coral',
-    name: 'CoralOS / STUK',
-    ask: 'Build the agent economy: agents buy and sell useful work with verifiable settlement.',
-    mandateMove:
-      'A public authority buyer can hire verifier agents, escrow payment, verify delivery, then release only a scoped payment capability.',
-    crowding: 'moderate',
-    examples: ['WANT/BID/AWARD', 'escrow', 'verifier gate']
-  },
-  {
-    id: 'gcc',
-    name: 'GCC & ETH',
-    ask: 'Transparent public capital allocation with metrics, counterfactuals, milestones, and reusable components.',
-    mandateMove:
-      'Grant applications become scored decisions, milestone release gates, appeal-ready receipts, and hash-only attestations.',
-    crowding: 'moderate',
-    examples: ['public funding', 'counterfactuals', 'milestones']
-  }
-];
-
-export const demoExamples: DemoExample[] = [
-  {
-    id: 'pricing',
-    borrowedFrom: 'Pactline / AlphaChange',
-    action: 'Pro Monthly price dropped to $15',
-    gate: '@finance + @product + pricing replay',
-    capability: 'merge.money.pricing',
-    receipt: 'withheld until approvals and checkout replay pass',
-    rail: 'local or ETH hash'
-  },
-  {
-    id: 'vendor',
-    borrowedFrom: 'VendorVerdict / BioVault',
-    action: 'Tax data provider fallback added',
-    gate: '@platform + @security + retention proof',
-    capability: 'merge.vendor.api_provider',
-    receipt: 'permissioned evidence path before model access',
-    rail: 'local'
-  },
-  {
-    id: 'procurement',
-    borrowedFrom: 'Bidframe / Conducting KYC',
-    action: 'Tender or KYC external commitment',
-    gate: '@legal + @delivery + source proof',
-    capability: 'submit.procurement.response',
-    receipt: 'human decision, source-backed scorecard',
-    rail: 'Ethereum-style attestation'
-  },
-  {
-    id: 'clinical',
-    borrowedFrom: 'Trial matching / SwarmSight',
-    action: 'Patient eligibility export',
-    gate: 'PI + safety monitor + de-identification proof',
-    capability: 'send.kyc.request_or_approve',
-    receipt: 'review-ready, no auto-approval',
-    rail: 'local audit pack'
-  },
-  {
-    id: 'grid',
-    borrowedFrom: 'Grid Balancer / BitHub',
-    action: 'Dispatch flexibility action',
-    gate: 'operator sign-off + telemetry receipt',
-    capability: 'dispatch.grid.flexibility',
-    receipt: 'commit before execute',
-    rail: 'local hash'
-  },
-  {
-    id: 'spend',
-    borrowedFrom: 'CoralOS / STUK',
-    action: 'Public authority buys milestone verification',
-    gate: 'WANT/BID/AWARD + acceptance test + verifier pass',
-    capability: 'pay.agent.vendor',
-    receipt: 'devnet escrow release only after delivery proof',
-    rail: 'Solana devnet'
-  },
-  {
-    id: 'public-funding',
-    borrowedFrom: 'GCC',
-    action: 'Allocate public-good grant funding',
-    gate: 'rubric + counterfactual + milestone plan + public audit',
-    capability: 'allocate.public_funding',
-    receipt: 'appeal-ready funding decision with reusable rubric',
-    rail: 'Ethereum EAS-style'
-  }
-];
-
 export const evidenceShots: EvidenceShot[] = [
   {
     id: 'policy',
@@ -366,10 +204,10 @@ export const evidenceShots: EvidenceShot[] = [
   },
   {
     id: 'receipt',
-    title: 'Hash-Only Rail',
-    source: 'receipt rail adapter',
-    caption: 'Crypto rails attest to receipt hashes; Mandate still decides authority.',
-    rows: ['policy hash', 'evidence hash', 'capability + TTL'],
+    title: 'Receipt Digest',
+    source: 'audit reference',
+    caption: 'External audit systems receive receipt references after authority checks pass.',
+    rows: ['policy digest', 'evidence digest', 'capability + TTL'],
     tone: 'ok'
   },
   {
@@ -379,163 +217,6 @@ export const evidenceShots: EvidenceShot[] = [
     caption: 'Every blocked or waiting action explains what proof would make it safe.',
     rows: ['missing owner', 'missing evidence', 'next safe capability'],
     tone: 'ok'
-  }
-];
-
-export const agentPlugins: AgentPlugin[] = [
-  {
-    id: 'legacy',
-    name: 'Behavior diff gate',
-    borrowedFrom: 'KEEL, Legacy Safety Net, LegacyLift, AlphaChange',
-    action: 'Change a legacy tax rule and prove what behavior changed.',
-    evidence: 'Golden-master replay: 2,847 held, 4 intended, 2 review-needed.',
-    authorityLayer: 'legacy.behavior_contract',
-    capability: 'merge.legacy.behavior_change',
-    integrationFit: ['Conduct AI'],
-    status: 'proof'
-  },
-  {
-    id: 'pricing-impact',
-    name: 'Pricing impact gate',
-    borrowedFrom: 'Pactline, AlphaChange, Lumen',
-    action: 'Change business-critical pricing or quant rules.',
-    evidence: 'Contract replay, affected-customer set, margin and refund exposure.',
-    authorityLayer: 'money.pricing',
-    capability: 'merge.money.pricing',
-    integrationFit: ['Conduct AI'],
-    status: 'waiting'
-  },
-  {
-    id: 'kyc',
-    name: 'Compliance evidence gate',
-    borrowedFrom: 'Conducting KYC, SwarmSight, BioVault',
-    action: 'Onboard a business or cite sensitive evidence.',
-    evidence: 'Source-backed scorecard, permissioned memory, tipping-off firewall.',
-    authorityLayer: 'regulated.customer_decision',
-    capability: 'send.kyc.request_or_approve',
-    integrationFit: ['Conduct AI'],
-    status: 'waiting'
-  },
-  {
-    id: 'memory',
-    name: 'Permissioned memory gate',
-    borrowedFrom: 'BioVault, MemtOS, Andex',
-    action: 'Let an agent read a derived report without leaking its hidden sources.',
-    evidence: 'Transitive source ACLs, revocation path, deterministic access log.',
-    authorityLayer: 'evidence.permissioned_memory',
-    capability: 'read.permissioned_memory',
-    integrationFit: ['Conduct AI'],
-    status: 'proof'
-  },
-  {
-    id: 'tender',
-    name: 'Tender commitment gate',
-    borrowedFrom: 'Bidframe, Remedia, VendorVerdict',
-    action: 'Submit a procurement answer or vendor-risk email.',
-    evidence: 'Clause matrix, deal-breaker proof, legal and delivery owner approvals.',
-    authorityLayer: 'commercial.external_commitment',
-    capability: 'submit.procurement.response',
-    integrationFit: ['Conduct AI', 'GCC & ETH'],
-    status: 'waiting'
-  },
-  {
-    id: 'clinical',
-    name: 'Clinical eligibility gate',
-    borrowedFrom: 'Trial matching, SwarmSight, BioVault',
-    action: 'Match a patient or applicant to a high-stakes eligibility decision.',
-    evidence: 'Criteria trace, missing-data escalation, human-review queue.',
-    authorityLayer: 'regulated.customer_decision',
-    capability: 'send.kyc.request_or_approve',
-    integrationFit: ['Conduct AI'],
-    status: 'waiting'
-  },
-  {
-    id: 'field-safety',
-    name: 'Field safety gate',
-    borrowedFrom: '3D RAMS, Cadzilla, fall-prevention demo',
-    action: 'Prepare a physical-world work pack or safety intervention.',
-    evidence: 'Method statement, hazard controls, source freshness, supervisor sign-off.',
-    authorityLayer: 'physical_world.dispatch',
-    capability: 'dispatch.grid.flexibility',
-    integrationFit: ['Conduct AI', 'GCC & ETH'],
-    status: 'blocked'
-  },
-  {
-    id: 'grid',
-    name: 'Dispatch and settlement gate',
-    borrowedFrom: 'Grid Balancer, BitHub',
-    action: 'Dispatch flexibility or hand an objective to a market.',
-    evidence: 'Telemetry, policy objective DAG, operator sign-off, receipt hash.',
-    authorityLayer: 'physical_world.dispatch',
-    capability: 'dispatch.grid.flexibility',
-    integrationFit: ['GCC & ETH'],
-    status: 'blocked'
-  },
-  {
-    id: 'spend',
-    name: 'Agent spend gate',
-    borrowedFrom: 'CoralOS / STUK, OmniQuantAI, hybrid work market',
-    action: 'Buy external model, research, audit, or verifier-agent work.',
-    evidence: 'WANT/BID/AWARD ledger, budget lane, acceptance test, provenance, settlement receipt.',
-    authorityLayer: 'agent_economy.spend',
-    capability: 'pay.agent.vendor',
-    integrationFit: ['CoralOS / STUK'],
-    status: 'proof'
-  },
-  {
-    id: 'grant-allocation',
-    name: 'Public funding allocation gate',
-    borrowedFrom: 'GCC',
-    action: 'Allocate civic/public-good funding without optimising an easy-to-game proxy.',
-    evidence: 'Rubric weights, counterfactual additionality, milestone schedule, appeal-ready record.',
-    authorityLayer: 'public_capital.allocation',
-    capability: 'allocate.public_funding',
-    integrationFit: ['GCC & ETH'],
-    status: 'proof'
-  },
-  {
-    id: 'grant-milestone',
-    name: 'Public grant milestone gate',
-    borrowedFrom: 'GCC, CoralOS / STUK',
-    action: 'Release a milestone payment only after an independent verifier agent checks evidence.',
-    evidence: 'Source citation check, repo artifact hash, milestone acceptance test.',
-    authorityLayer: 'public_capital.milestone_verification',
-    capability: 'verify.public_grant_milestone',
-    integrationFit: ['GCC & ETH', 'CoralOS / STUK'],
-    status: 'proof'
-  },
-  {
-    id: 'planning',
-    name: 'Civic planning gate',
-    borrowedFrom: 'PlanningOS, Civic Property Intelligence, BitHub',
-    action: 'Recommend a planning, property, or public-good decision.',
-    evidence: 'Policy maps, objective DAG, public source citations, appeal-ready record.',
-    authorityLayer: 'public_governance.decision',
-    capability: 'publish.governance.receipt',
-    integrationFit: ['GCC & ETH'],
-    status: 'proof'
-  },
-  {
-    id: 'incident',
-    name: 'Incident precedent gate',
-    borrowedFrom: 'Precedent, MemtOS',
-    action: 'Repeat a known admin-console fix and prepare rollback.',
-    evidence: 'Runbook match, blast-radius check, human approval, rollback command.',
-    authorityLayer: 'ops.incident_precedent',
-    capability: 'run.ops.precedent_fix',
-    integrationFit: ['Conduct AI'],
-    status: 'proof'
-  },
-  {
-    id: 'transformation',
-    name: 'Transformation simulation gate',
-    borrowedFrom: 'TransformAI, AI Impact Radar, Andex',
-    action: 'Recommend the next enterprise AI rollout or org change.',
-    evidence: 'Impact radar, scenario simulation, readiness score, owner map.',
-    authorityLayer: 'strategy.transformation_decision',
-    capability: 'publish.transformation_plan',
-    integrationFit: ['Conduct AI'],
-    status: 'proof'
   }
 ];
 
@@ -552,7 +233,7 @@ export const authorityFindings: AuthorityFinding[] = [
     capability: 'merge.implementation.performance',
     status: 'released',
     prNumber: 2,
-    integrationHook: 'Conduct: safe work moves immediately'
+    integrationHook: 'Safe implementation work can release immediately'
   },
   {
     id: 'pricing',
@@ -566,7 +247,7 @@ export const authorityFindings: AuthorityFinding[] = [
     capability: 'merge.money.pricing',
     status: 'waiting',
     prNumber: 1,
-    integrationHook: 'Conduct: business authority, not line count'
+    integrationHook: 'Business authority is separate from code authorship'
   },
   {
     id: 'provider',
@@ -580,7 +261,7 @@ export const authorityFindings: AuthorityFinding[] = [
     capability: 'merge.vendor.api_provider',
     status: 'waiting',
     prNumber: 3,
-    integrationHook: 'Conduct: source-backed vendor evidence before tool access'
+    integrationHook: 'Vendor evidence is required before tool access'
   },
   {
     id: 'recs',
@@ -593,7 +274,7 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: 'offline eval + metric receipt',
     capability: 'run.product_quality.recommendation_eval',
     status: 'proof',
-    integrationHook: 'Fetch: agent can explain action readiness'
+    integrationHook: 'Action readiness is explainable before release'
   },
   {
     id: 'test',
@@ -606,7 +287,7 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: 'blocked unless QA + checkout override',
     capability: 'none',
     status: 'blocked',
-    integrationHook: 'Conduct: enterprise trust boundary'
+    integrationHook: 'Protected tests define a hard trust boundary'
   },
   {
     id: 'tender',
@@ -619,20 +300,20 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: '@legal + @delivery + source proof',
     capability: 'submit.procurement.response',
     status: 'waiting',
-    integrationHook: 'GCC: transparent decision record'
+    integrationHook: 'External commitments need a transparent decision record'
   },
   {
     id: 'spend',
     action: 'External verifier agent selected',
-    layer: 'agent_economy.spend',
+    layer: 'verifier_procurement.spend',
     source: 'public-grant-verification-market.ledger.json',
-    evidence: 'WANT/BID/AWARD ledger, budget lane, delivery proof, and acceptance test are attached.',
+    evidence: 'Request, bid, award, budget lane, delivery proof, and acceptance test are attached.',
     evidenceKeys: ['budget_lane', 'acceptance_test', 'delivery_proof'],
     approvals: ['@finance'],
     gate: '@finance + acceptance proof + settlement receipt',
     capability: 'pay.agent.vendor',
     status: 'proof',
-    integrationHook: 'CoralOS/STUK: agent work settles after verifier acceptance'
+    integrationHook: 'Verifier work settles only after acceptance'
   },
   {
     id: 'public-funding',
@@ -651,7 +332,7 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: '@programme-owner + @finance + @public-audit + appeal-ready receipt',
     capability: 'allocate.public_funding',
     status: 'proof',
-    integrationHook: 'GCC: real allocation decision, not a chat response'
+    integrationHook: 'This is an allocation decision, not a chat response'
   },
   {
     id: 'grant-milestone',
@@ -664,7 +345,7 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: '@programme-owner + verifier pass + artifact hash',
     capability: 'verify.public_grant_milestone',
     status: 'proof',
-    integrationHook: 'GCC/CoralOS: milestone verification becomes a paid agent service'
+    integrationHook: 'Milestone verification can be a paid specialist service'
   },
   {
     id: 'kyc',
@@ -677,7 +358,7 @@ export const authorityFindings: AuthorityFinding[] = [
     gate: '@compliance + permissioned memory check',
     capability: 'send.kyc.request_or_approve',
     status: 'waiting',
-    integrationHook: 'Conduct: agent researches, human decides'
+    integrationHook: 'The agent researches; the accountable owner decides'
   }
 ];
 
@@ -698,8 +379,8 @@ export const receipts: Receipt[] = [
   },
   {
     id: 'chain',
-    title: 'Optional chain anchor prepared',
-    body: 'ETH-style receipt rails receive the hash after authority passes; they do not decide authority.',
+    title: 'External audit reference prepared',
+    body: 'External audit systems receive the receipt reference after authority passes; they do not decide authority.',
     hash: 'anchor:pending:receipt-hash-only',
     tone: 'neutral'
   },
@@ -726,23 +407,23 @@ export const receipts: Receipt[] = [
   },
   {
     id: 'teaching',
-    title: 'Teaching signal recorded',
-    body: 'The denied early release explains the missing owner and evidence so employees and future agents know the next safe step.',
+    title: 'Follow-up recorded',
+    body: 'The denied early release explains the missing owner and evidence for the next review.',
     hash: 'lesson:missing-proof:money.pricing',
     tone: 'ok'
   },
   {
     id: 'gcc',
     title: 'Public funding allocation ready',
-    body: 'Grant recommendations include rubric weights, counterfactuals, milestone gates, and appeal-ready public receipts.',
+    body: 'Grant recommendations include rubric weights, eligibility checks, milestone gates, and appeal-ready audit records.',
     hash: 'gcc:allocation:public-digital-commons',
     tone: 'ok'
   },
   {
     id: 'coral-stuk',
-    title: 'Verifier agent economy receipt',
-    body: 'WANT, BID, AWARD, DEPOSITED, DELIVERED, VERIFIED, and RELEASED states are hash-bound before payment release.',
-    hash: 'coral:agent-economy:public-grant-verifier',
+    title: 'Verifier procurement receipt',
+    body: 'Procurement, delivery, verification, and release records are linked before payment.',
+    hash: 'settlement:verifier-procurement:public-grant',
     tone: 'neutral'
   }
 ];
@@ -779,8 +460,8 @@ export const seedMessages: Message[] = [
     time: '9:04 AM',
     kind: 'report',
     body:
-      'Ready for demo day. I act as the company-level agent: anyone can ask, but every high-stakes action routes to company authority, scoped capability release, and a teachable receipt.',
-    tags: ['ready', 'company agent', 'teaching gates'],
+      'Authority report ready. High-risk actions are routed to accountable owners with scoped capability release and recorded receipts.',
+    tags: ['approval-routing', 'release-control', 'audit-record'],
     reactions: [{ emoji: 'OK', count: 4 }]
   },
   {
@@ -819,15 +500,15 @@ export const seedMessages: Message[] = [
   },
   {
     id: 5,
-    channelId: 'integrations-room',
+    channelId: 'authority-map',
     author: 'Mandate Agent',
-    role: 'integration router',
+    role: 'authority router',
     avatar: 'MA',
     time: '9:18 AM',
     kind: 'report',
     body:
-      'Integration fit: Conduct gets controlled enterprise change; Fetch gets an action-readiness agent; CoralOS/STUK coordinates paid verifier work; GCC & ETH get transparent public-funding receipts.',
-    tags: ['Conduct', 'Fetch.ai', 'CoralOS/STUK', 'GCC & ETH']
+      'Authority map ready: code changes, vendor work, grant allocation, verifier payment, and public receipts are separated into scoped actions with owners and evidence.',
+    tags: ['authority map', 'scoped actions', 'receipts']
   },
   {
     id: 6,

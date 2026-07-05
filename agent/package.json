@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "fast-tax:evidence": "tsx src/produce-fast-tax-evidence.ts",
-    "public-funding:agent-economy": "tsx src/public-funding-agent-economy.ts",
+    "public-funding:verifier-procurement": "tsx src/public-funding-verifier-procurement.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {

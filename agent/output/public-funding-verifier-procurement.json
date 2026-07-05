@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T23:09:23.786Z",
+  "generatedAt": "2026-07-05T00:29:14.631Z",
   "publicBody": "UK Public Digital Commons Fund",
   "budgetGbp": 120000,
   "gcc": {
@@ -376,16 +376,16 @@
     ],
     "allocationHash": "sha256:736ff5903ef94a0376f3c1871b67509942ec627a4b72b9b74bdacc9e35a92fca",
     "reusableInterfaces": [
-      "POST /api/public-funding/agent-economy with budgetGbp to recalculate the grant portfolio",
+      "POST /api/public-funding/verifier-procurement with budgetGbp to recalculate the grant portfolio",
       "FundingDecision.receiptHash for appeal-ready public receipts",
       "GrantMilestone.evidenceRequired for modular milestone verification",
-      "AgentEconomyWorkflow.ledger for CoralOS-style WANT to RELEASED settlement records"
+      "Verifier procurement ledger for request, bid, award, deposit, delivery, verification, and release records"
     ]
   },
-  "coralStuk": {
+  "verifierProcurement": {
     "coralSession": {
       "namespace": "mandate-public-funding",
-      "sessionId": "gcc-agent-economy-df922aa4",
+      "sessionId": "verifier-procurement-df922aa4",
       "thread": "public-grant-verification-market",
       "agents": [
         "mandate-public-authority-buyer",
@@ -462,58 +462,58 @@
     },
     "ledger": [
       {
-        "state": "WANT",
+        "state": "Requested",
         "actor": "mandate-public-authority-buyer",
         "message": "Need milestone verification for Open Planning Evidence Commons; budget cap 35000000 lamports; acceptance test requires cited evidence and delivery hash.",
-        "receiptHash": "sha256:78949085cf4c2140e5538f9ea1c16f419eef0f16182daaeb3be778d43e6db578"
+        "receiptHash": "sha256:1bfccc458b208792bbbdc19a6c0433b070e861cf09e78fc6e77065cb5fd495d3"
       },
       {
-        "state": "BID",
+        "state": "Bid received",
         "actor": "milestone-verifier-premium",
         "message": "Independent grant milestone verification for 27500000 lamports with evidence source_citation_check, repo_artifact_hash, milestone_acceptance_test.",
-        "receiptHash": "sha256:ce9337ac7edfa7471f1186f200a442f5217c2aa1d1450c380e6c997068dd5e1d"
+        "receiptHash": "sha256:d7e783b5e008b04cc72922bcaae75441e3fab5ea3f5f0e9488cb01ae0c5d81ea"
       },
       {
-        "state": "BID",
+        "state": "Bid received",
         "actor": "impact-rubric-fast",
         "message": "Impact and counterfactual review for 18000000 lamports with evidence rubric_score_replay, counterfactual_note.",
-        "receiptHash": "sha256:991f3b277777695011cb9af9a9e2e88b6eb1e11cb79d0d9c683d10728f7eaa22"
+        "receiptHash": "sha256:dcdc29fe78f60e384d9571b3c15c0ff25e888b9b066e277b1ee18d2f95ed7b8e"
       },
       {
-        "state": "BID",
+        "state": "Bid received",
         "actor": "audit-pack-budget",
         "message": "Public receipt pack generation for 12500000 lamports with evidence receipt_template, appeal_record_outline.",
-        "receiptHash": "sha256:02862a6e03f8d3265d24679ad4bf4094cc44a1bb88726e265d5e8545fc8a2ad2"
+        "receiptHash": "sha256:a46df91a0bb7a0c6b20154dc7956dca5fd472003cbdda81fec9f57bc8ef29b8e"
       },
       {
-        "state": "AWARD",
+        "state": "Awarded",
         "actor": "mandate-public-authority-buyer",
         "message": "Awarded to milestone-verifier-premium. Highest combined quality, reputation, evidence coverage, and price-fit score under the Mandate budget cap.",
-        "receiptHash": "sha256:83f631864d8fb49010349a953570283df93132ec4016d2d8cb41f386b4e42824"
+        "receiptHash": "sha256:d700769ad0aee8acbcd21ed6681935f873342e130aac5e6ab271b91c8da98d2d"
       },
       {
-        "state": "DEPOSITED",
+        "state": "Deposited",
         "actor": "mandate-solana-escrow-adapter",
         "message": "Prepared devnet escrow reference df922aa479736f2cd5fc0a7e4932c9bc; funds release is still gated by Mandate capability pay.agent.vendor.",
-        "receiptHash": "sha256:a75c6d54155a441a4e6df84242254951e7a48982825727c94c10f3a937e4a70c"
+        "receiptHash": "sha256:c6aa81174379d3a1bf96a95f17d2529bec4a14678f6f4aa422bb101716e5a902"
       },
       {
-        "state": "DELIVERED",
+        "state": "Delivered",
         "actor": "milestone-verifier-premium",
         "message": "Delivered verification bundle hash-bound to sha256:283bdbe8f2663f22eee62810285bf08c604c47ebe10f3d44f05b1f16349c1f96.",
         "receiptHash": "sha256:283bdbe8f2663f22eee62810285bf08c604c47ebe10f3d44f05b1f16349c1f96"
       },
       {
-        "state": "VERIFIED",
+        "state": "Verified",
         "actor": "mandate-independent-verifier",
         "message": "Verifier passed cited evidence, milestone acceptance tests, and public receipt completeness.",
-        "receiptHash": "sha256:38bb24a4bf7963749bd9c387c03544f11530def3051ad7c13c59da28c762ea3f"
+        "receiptHash": "sha256:4d905a76a0a63e616c4a03fca6c44239ea24d5a70e143296d36b7aa0141222db"
       },
       {
-        "state": "RELEASED",
+        "state": "Released",
         "actor": "mandate-capability-gate",
         "message": "Released pay.agent.vendor only after budget lane, acceptance test, delivery proof, and finance approval.",
-        "receiptHash": "sha256:26948fdf6e2f9ca56faad88c9bd3280beed30f8efcf9bc804d142bdae41b8ad8"
+        "receiptHash": "sha256:55ffabe720f15b57de6d970b048b480e1d67cb2ba5620b00a47b34d690ebfaf1"
       }
     ]
   },
@@ -545,7 +545,7 @@
     "metadata": {
       "title": "Mandate public funding verifier release",
       "label": "Sign funding release",
-      "description": "Hash-only Solana devnet receipt for a paid verifier-agent release after Mandate policy passes.",
+      "description": "Hash-only Solana devnet receipt for a paid verifier release after Mandate policy passes.",
       "escrowReference": "df922aa479736f2cd5fc0a7e4932c9bc",
       "amountLamports": 27500000
     }

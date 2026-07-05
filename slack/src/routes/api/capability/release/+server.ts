@@ -300,7 +300,7 @@ export async function POST({ request, platform }) {
   if (!getLiveExecutorToken(platform, config.env)) {
     throw error(
       502,
-      `The live executor for ${capability} is disabled. Set ${config.env} or use dryRun for the hackathon demo.`
+      `The live executor for ${capability} is disabled. Set ${config.env} or use dryRun.`
     );
   }
 

@@ -52,7 +52,7 @@ export type FundingDecision = {
   receiptHash: string;
 };
 
-export type AgentBid = {
+export type VerifierBid = {
   agent: string;
   service: string;
   priceLamports: number;
@@ -63,14 +63,21 @@ export type AgentBid = {
   evidence: string[];
 };
 
-export type AgentEconomyLedgerStep = {
-  state: 'WANT' | 'BID' | 'AWARD' | 'DEPOSITED' | 'DELIVERED' | 'VERIFIED' | 'RELEASED';
+export type VerifierProcurementLedgerStep = {
+  state:
+    | 'Requested'
+    | 'Bid received'
+    | 'Awarded'
+    | 'Deposited'
+    | 'Delivered'
+    | 'Verified'
+    | 'Released';
   actor: string;
   message: string;
   receiptHash: string;
 };
 
-export type AgentEconomyWorkflow = {
+export type VerifierProcurementWorkflow = {
   coralSession: {
     namespace: string;
     sessionId: string;
@@ -83,7 +90,7 @@ export type AgentEconomyWorkflow = {
     maxPriceLamports: number;
     acceptanceTest: string[];
   };
-  bids: AgentBid[];
+  bids: VerifierBid[];
   award: {
     winner: string;
     reason: string;
@@ -96,10 +103,10 @@ export type AgentEconomyWorkflow = {
     releaseCapability: string;
     explorerHint: string;
   };
-  ledger: AgentEconomyLedgerStep[];
+  ledger: VerifierProcurementLedgerStep[];
 };
 
-export type PublicFundingAgentEconomyWorkflow = {
+export type PublicFundingVerifierProcurementWorkflow = {
   generatedAt: string;
   publicBody: string;
   budgetGbp: number;
@@ -110,7 +117,7 @@ export type PublicFundingAgentEconomyWorkflow = {
     allocationHash: string;
     reusableInterfaces: string[];
   };
-  coralStuk: AgentEconomyWorkflow;
+  verifierProcurement: VerifierProcurementWorkflow;
 };
 
 const DEFAULT_BUDGET_GBP = 120_000;
@@ -496,28 +503,30 @@ export function buildFundingWorkflow(options: { budgetGbp?: number } = {}) {
     decisions,
     allocationHash,
     reusableInterfaces: [
-      'POST /api/public-funding/agent-economy with budgetGbp to recalculate the grant portfolio',
+      'POST /api/public-funding/verifier-procurement with budgetGbp to recalculate the grant portfolio',
       'FundingDecision.receiptHash for appeal-ready public receipts',
       'GrantMilestone.evidenceRequired for modular milestone verification',
-      'AgentEconomyWorkflow.ledger for CoralOS-style WANT to RELEASED settlement records'
+      'Verifier procurement ledger for request, bid, award, deposit, delivery, verification, and release records'
     ]
   };
 }
 
-function scoreBid(bid: AgentBid, maxPriceLamports: number) {
+function scoreBid(bid: VerifierBid, maxPriceLamports: number) {
   const priceScore = clampScore((1 - bid.priceLamports / maxPriceLamports) * 100);
   return Number(
     (bid.qualityScore * 0.4 + bid.reputationScore * 0.25 + priceScore * 0.2 + (100 - bid.deliveryMinutes) * 0.15).toFixed(2)
   );
 }
 
-export function buildAgentEconomyWorkflow(fundingWorkflow = buildFundingWorkflow()): AgentEconomyWorkflow {
+export function buildVerifierProcurementWorkflow(
+  fundingWorkflow = buildFundingWorkflow()
+): VerifierProcurementWorkflow {
   const funded = fundingWorkflow.decisions.find((decision) => decision.status === 'fund');
   const service =
     funded?.applicant ??
     'Open Planning Evidence Commons';
   const maxPriceLamports = 35_000_000;
-  const bids: AgentBid[] = [
+  const bids: VerifierBid[] = [
     {
       agent: 'milestone-verifier-premium',
       service: 'Independent grant milestone verification',
@@ -564,57 +573,57 @@ export function buildAgentEconomyWorkflow(fundingWorkflow = buildFundingWorkflow
   const awardReason =
     'Highest combined quality, reputation, evidence coverage, and price-fit score under the Mandate budget cap.';
 
-  const ledger: AgentEconomyLedgerStep[] = [
+  const ledger: VerifierProcurementLedgerStep[] = [
     {
-      state: 'WANT',
+      state: 'Requested',
       actor: 'mandate-public-authority-buyer',
       message: `Need milestone verification for ${service}; budget cap ${maxPriceLamports} lamports; acceptance test requires cited evidence and delivery hash.`,
-      receiptHash: hashJson({ state: 'WANT', service, maxPriceLamports })
+      receiptHash: hashJson({ state: 'Requested', service, maxPriceLamports })
     },
     ...bids.map((bid) => ({
-      state: 'BID' as const,
+      state: 'Bid received' as const,
       actor: bid.agent,
       message: `${bid.service} for ${bid.priceLamports} lamports with evidence ${bid.evidence.join(', ')}.`,
-      receiptHash: hashJson({ state: 'BID', bid })
+      receiptHash: hashJson({ state: 'Bid received', bid })
     })),
     {
-      state: 'AWARD',
+      state: 'Awarded',
       actor: 'mandate-public-authority-buyer',
       message: `Awarded to ${winner.bid.agent}. ${awardReason}`,
-      receiptHash: hashJson({ state: 'AWARD', winner: winner.bid.agent, score: winner.score })
+      receiptHash: hashJson({ state: 'Awarded', winner: winner.bid.agent, score: winner.score })
     },
     {
-      state: 'DEPOSITED',
+      state: 'Deposited',
       actor: 'mandate-solana-escrow-adapter',
       message: `Prepared devnet escrow reference ${reference}; funds release is still gated by Mandate capability pay.agent.vendor.`,
-      receiptHash: hashJson({ state: 'DEPOSITED', reference, amountLamports: winner.bid.priceLamports })
+      receiptHash: hashJson({ state: 'Deposited', reference, amountLamports: winner.bid.priceLamports })
     },
     {
-      state: 'DELIVERED',
+      state: 'Delivered',
       actor: winner.bid.agent,
       message: `Delivered verification bundle hash-bound to ${deliveryHash}.`,
       receiptHash: deliveryHash
     },
     {
-      state: 'VERIFIED',
+      state: 'Verified',
       actor: 'mandate-independent-verifier',
       message:
         'Verifier passed cited evidence, milestone acceptance tests, and public receipt completeness.',
-      receiptHash: hashJson({ state: 'VERIFIED', deliveryHash, passed: true })
+      receiptHash: hashJson({ state: 'Verified', deliveryHash, passed: true })
     },
     {
-      state: 'RELEASED',
+      state: 'Released',
       actor: 'mandate-capability-gate',
       message:
         'Released pay.agent.vendor only after budget lane, acceptance test, delivery proof, and finance approval.',
-      receiptHash: hashJson({ state: 'RELEASED', capability: 'pay.agent.vendor', deliveryHash })
+      receiptHash: hashJson({ state: 'Released', capability: 'pay.agent.vendor', deliveryHash })
     }
   ];
 
   return {
     coralSession: {
       namespace: 'mandate-public-funding',
-      sessionId: `gcc-agent-economy-${reference.slice(0, 8)}`,
+      sessionId: `verifier-procurement-${reference.slice(0, 8)}`,
       thread: 'public-grant-verification-market',
       agents: [
         'mandate-public-authority-buyer',
@@ -645,15 +654,15 @@ export function buildAgentEconomyWorkflow(fundingWorkflow = buildFundingWorkflow
   };
 }
 
-export function buildPublicFundingAgentEconomyWorkflow(
+export function buildPublicFundingVerifierProcurementWorkflow(
   options: { budgetGbp?: number } = {}
-): PublicFundingAgentEconomyWorkflow {
+): PublicFundingVerifierProcurementWorkflow {
   const fundingWorkflow = buildFundingWorkflow(options);
   return {
     generatedAt: new Date().toISOString(),
     publicBody: 'UK Public Digital Commons Fund',
     budgetGbp: options.budgetGbp ?? DEFAULT_BUDGET_GBP,
     gcc: fundingWorkflow,
-    coralStuk: buildAgentEconomyWorkflow(fundingWorkflow)
+    verifierProcurement: buildVerifierProcurementWorkflow(fundingWorkflow)
   };
 }
