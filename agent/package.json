@@ -6,6 +6,7 @@
   "scripts": {
     "fast-tax:evidence": "tsx src/produce-fast-tax-evidence.ts",
     "public-funding:verifier-procurement": "tsx src/public-funding-verifier-procurement.ts",
+    "canton:low-level-lab": "tsx src/canton-low-level-lab.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {

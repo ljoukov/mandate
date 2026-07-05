@@ -1,0 +1,167 @@
+{
+  "generatedAt": "2026-07-05T00:49:26.752Z",
+  "network": {
+    "synchronizer": "canton-devnet",
+    "validator": "c8-devnet-validator",
+    "custody": "internal"
+  },
+  "party": {
+    "partyIdHint": "mandate-verifier-treasury",
+    "allocatedPartyId": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+    "participantId": "c8-devnet-participant",
+    "capability": "canton.party.allocate"
+  },
+  "preApproval": {
+    "templateId": "Splice.Wallet.TransferPreapproval:TransferPreapproval",
+    "contractId": "0084ddc666ba58fcbe7f4efc9019eed06e0b3bf3b19618e4877456f3dd66d158",
+    "providerPartyId": "c8-transfer-preapproval-provider::1220c8devnet",
+    "receiverPartyId": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+    "capability": "canton.preapproval.create"
+  },
+  "coinBalance": {
+    "ownerPartyId": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+    "tokenSymbol": "CC",
+    "amount": "125.0000000000",
+    "acsQueryHash": "sha256:29b5d914abb4b6122e405399dfe2787d51bb2afab74e8718e86b710560d85158",
+    "capability": "canton.coin.balance.read"
+  },
+  "tokenTransfer": {
+    "senderPartyId": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+    "receiverPartyId": "civic-milestone-verifier::1220receiverdevnetvalidator",
+    "amount": "12.5000000000",
+    "commandId": "mandate-canton-transfer-f6dd1455fb84",
+    "deduplicationOffset": "PT120S",
+    "capability": "canton.token.transfer"
+  },
+  "lowLevelRequests": {
+    "allocateParty": {
+      "service": "com.digitalasset.canton.admin.party.v30.PartyManagementService",
+      "method": "AllocateParty",
+      "validator": "c8-devnet-validator",
+      "payload": {
+        "partyIdHint": "mandate-verifier-treasury",
+        "participantId": "c8-devnet-participant",
+        "localMetadata": {
+          "annotations": {
+            "mandate.authority.layer": "permissioned_ledger.party_management",
+            "mandate.custody": "internal",
+            "mandate.request": "public-funding-verifier-payment"
+          }
+        }
+      }
+    },
+    "createPreApproval": {
+      "service": "com.daml.ledger.api.v2.CommandService",
+      "method": "SubmitAndWait",
+      "api": "JSON Ledger API command envelope",
+      "payload": {
+        "actAs": [
+          "mandate-verifier-treasury::1220mandatec8devnetvalidator"
+        ],
+        "commandId": "mandate-preapproval-84ddc666ba58",
+        "commands": [
+          {
+            "CreateCommand": {
+              "templateId": "Splice.Wallet.TransferPreapproval:TransferPreapproval",
+              "createArguments": {
+                "provider": "c8-transfer-preapproval-provider::1220c8devnet",
+                "receiver": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+                "synchronizerId": "canton-devnet",
+                "expiresAt": "2026-07-12T00:00:00Z"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "queryCoinAcs": {
+      "service": "com.daml.ledger.api.v2.StateService",
+      "method": "GetActiveContracts",
+      "api": "Ledger API ACS stream",
+      "payload": {
+        "filter": {
+          "filtersByParty": {
+            "mandate-verifier-treasury::1220mandatec8devnetvalidator": {
+              "cumulative": [
+                {
+                  "identifierFilter": {
+                    "TemplateFilter": {
+                      "templateId": "Splice.Amulet:Amulet"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "verbose": true
+      }
+    },
+    "tokenStandardTransfer": {
+      "service": "com.daml.ledger.api.v2.CommandService",
+      "method": "SubmitAndWait",
+      "api": "Token Standard transfer command envelope",
+      "payload": {
+        "actAs": [
+          "mandate-verifier-treasury::1220mandatec8devnetvalidator"
+        ],
+        "commandId": "mandate-canton-transfer-f6dd1455fb84",
+        "deduplicationDuration": "PT120S",
+        "commands": [
+          {
+            "ExerciseCommand": {
+              "templateId": "Splice.TokenStandard.TransferInstruction:TransferFactory",
+              "contractId": "0084ddc666ba58fcbe7f4efc9019eed06e0b3bf3b19618e4877456f3dd66d158",
+              "choice": "Transfer",
+              "choiceArgument": {
+                "sender": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+                "receiver": "civic-milestone-verifier::1220receiverdevnetvalidator",
+                "amount": "12.5000000000",
+                "unit": "CC",
+                "memo": "Mandate verifier milestone payment"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "ledger": [
+    {
+      "state": "Party allocated",
+      "actor": "c8-devnet-validator",
+      "action": "Allocated internal party mandate-verifier-treasury::1220mandatec8devnetvalidator",
+      "api": "Validator Admin API",
+      "receiptHash": "sha256:599867667075a40a44ee28ba81e47d80ab4d962ea0d38d422df3c80ad9c3f8c4"
+    },
+    {
+      "state": "Pre-approval created",
+      "actor": "c8-transfer-preapproval-provider::1220c8devnet",
+      "action": "Created transfer pre-approval contract before any coin movement",
+      "api": "Ledger API JSON",
+      "receiptHash": "sha256:6866dd11cdda665d2822890875f3521245affd7afcf0ed7fe49e9fa7e0754a24"
+    },
+    {
+      "state": "Balance indexed",
+      "actor": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+      "action": "Indexed active contracts for Canton Coin balance",
+      "api": "Ledger API ACS",
+      "receiptHash": "sha256:29b5d914abb4b6122e405399dfe2787d51bb2afab74e8718e86b710560d85158"
+    },
+    {
+      "state": "Transfer prepared",
+      "actor": "mandate-verifier-treasury::1220mandatec8devnetvalidator",
+      "action": "Prepared 12.5000000000 CC transfer to civic-milestone-verifier::1220receiverdevnetvalidator",
+      "api": "Ledger API JSON",
+      "receiptHash": "sha256:14a21ed2b71157fc40227f0d3aa6a83de391bcbd8c48062ffe5f9fa49aa53206"
+    }
+  ],
+  "mandatePolicyCheck": {
+    "partyAllocationCapability": "canton.party.allocate",
+    "preApprovalCapability": "canton.preapproval.create",
+    "balanceReadCapability": "canton.coin.balance.read",
+    "transferCapability": "canton.token.transfer",
+    "finalDecisionPath": "deterministic",
+    "modelVisiblePrivateKeys": false
+  }
+}

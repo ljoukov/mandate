@@ -211,6 +211,14 @@ export const evidenceShots: EvidenceShot[] = [
     tone: 'ok'
   },
   {
+    id: 'ledger',
+    title: 'Permissioned Ledger Path',
+    source: 'Canton DevNet validator',
+    caption: 'Party allocation and Token Standard transfer commands are gated before coin movement.',
+    rows: ['party allocation: prepared', 'preapproval contract: prepared', 'ACS balance: indexed'],
+    tone: 'neutral'
+  },
+  {
     id: 'teaching',
     title: 'Teaching Loop',
     source: 'approval receipts -> next run',
@@ -348,6 +356,20 @@ export const authorityFindings: AuthorityFinding[] = [
     integrationHook: 'Milestone verification can be a paid specialist service'
   },
   {
+    id: 'canton-transfer',
+    action: 'Canton Coin verifier payment prepared',
+    layer: 'permissioned_ledger.token_transfer',
+    source: 'canton.low_level_lab.receipts.json',
+    evidence:
+      'Party allocation, PreApproval contract, ACS balance snapshot, and Token Standard transfer command are prepared.',
+    evidenceKeys: ['preapproval_contract', 'coin_balance', 'transfer_command_hash', 'recipient_party'],
+    approvals: ['@finance', '@ledger-ops'],
+    gate: '@finance + @ledger-ops + preapproval + ACS balance',
+    capability: 'canton.token.transfer',
+    status: 'proof',
+    integrationHook: 'Permissioned ledger transfers require validator-hosted party authority'
+  },
+  {
     id: 'kyc',
     action: 'KYC outreach drafted',
     layer: 'regulated.customer_decision',
@@ -424,6 +446,13 @@ export const receipts: Receipt[] = [
     title: 'Verifier procurement receipt',
     body: 'Procurement, delivery, verification, and release records are linked before payment.',
     hash: 'settlement:verifier-procurement:public-grant',
+    tone: 'neutral'
+  },
+  {
+    id: 'canton',
+    title: 'Canton ledger command prepared',
+    body: 'Party allocation, pre-approval, ACS balance, and Token Standard transfer receipts are linked before Canton Coin moves.',
+    hash: 'canton:devnet:token-transfer-prepared',
     tone: 'neutral'
   }
 ];

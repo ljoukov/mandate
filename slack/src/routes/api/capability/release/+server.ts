@@ -13,7 +13,11 @@ type CapabilityConfig = {
     | 'read_memory'
     | 'publish_receipt'
     | 'allocate_grant'
-    | 'verify_milestone';
+    | 'verify_milestone'
+    | 'allocate_party'
+    | 'create_preapproval'
+    | 'read_acs'
+    | 'transfer_token';
   requiredApprovals?: string[];
   requiredEvidence?: string[];
   ttlSeconds?: number;
@@ -31,7 +35,7 @@ type ReleaseRequest = {
   receiptRail?: unknown;
 };
 
-const RECEIPT_RAILS = new Set(['local', 'ethereum:eas', 'solana:devnet']);
+const RECEIPT_RAILS = new Set(['local', 'ethereum:eas', 'solana:devnet', 'canton:devnet']);
 
 const CAPABILITIES: Record<string, CapabilityConfig> = {
   'merge.implementation.performance': {
@@ -136,6 +140,41 @@ const CAPABILITIES: Record<string, CapabilityConfig> = {
     requiredEvidence: ['source_citation_check', 'repo_artifact_hash', 'milestone_acceptance_test'],
     ttlSeconds: 300
   },
+  'canton.party.allocate': {
+    env: 'MANDATE_CANTON_PARTY_TOKEN',
+    label: 'Canton internal party allocation capability',
+    receiptType: 'action_capability',
+    action: 'allocate_party',
+    requiredApprovals: ['@ledger-ops', '@public-audit'],
+    requiredEvidence: ['validator_admin_endpoint', 'party_id_hint', 'custody_policy', 'participant_topology'],
+    ttlSeconds: 120
+  },
+  'canton.preapproval.create': {
+    env: 'MANDATE_CANTON_PREAPPROVAL_TOKEN',
+    label: 'Canton transfer preapproval capability',
+    receiptType: 'action_capability',
+    action: 'create_preapproval',
+    requiredApprovals: ['@ledger-ops', '@finance'],
+    requiredEvidence: ['allocated_party', 'preapproval_template', 'validator_tx_receipt'],
+    ttlSeconds: 120
+  },
+  'canton.coin.balance.read': {
+    env: 'MANDATE_CANTON_ACS_TOKEN',
+    label: 'Canton Coin ACS balance read capability',
+    receiptType: 'action_capability',
+    action: 'read_acs',
+    requiredEvidence: ['ledger_api_filter', 'party_authorization', 'acs_snapshot_hash'],
+    ttlSeconds: 90
+  },
+  'canton.token.transfer': {
+    env: 'MANDATE_CANTON_TRANSFER_TOKEN',
+    label: 'Canton Token Standard transfer capability',
+    receiptType: 'action_capability',
+    action: 'transfer_token',
+    requiredApprovals: ['@finance', '@ledger-ops'],
+    requiredEvidence: ['preapproval_contract', 'coin_balance', 'transfer_command_hash', 'recipient_party'],
+    ttlSeconds: 90
+  },
   'dispatch.grid.flexibility': {
     env: 'MANDATE_DISPATCH_TOKEN',
     label: 'grid dispatch capability',
@@ -178,17 +217,17 @@ const CAPABILITIES: Record<string, CapabilityConfig> = {
   },
   'approve.product': {
     env: 'MANDATE_PRODUCT_APPROVAL_RECEIPT',
-    label: 'product demo approval receipt',
+    label: 'product approval receipt',
     receiptType: 'approval_receipt'
   },
   'approve.finance': {
     env: 'MANDATE_FINANCE_APPROVAL_RECEIPT',
-    label: 'finance demo approval receipt',
+    label: 'finance approval receipt',
     receiptType: 'approval_receipt'
   },
   'approve.qa_override': {
     env: 'MANDATE_QA_OVERRIDE_RECEIPT',
-    label: 'QA override demo approval receipt',
+    label: 'QA override approval receipt',
     receiptType: 'approval_receipt'
   }
 };
@@ -230,7 +269,7 @@ export async function POST({ request, platform }) {
 
   const targetRepo = String(body.targetRepo ?? 'yavol/fast-tax');
   if (targetRepo !== 'yavol/fast-tax') {
-    throw error(403, `Target repo ${targetRepo} is not allowed for this demo.`);
+    throw error(403, `Target repo ${targetRepo} is not allowed for this workspace.`);
   }
 
   const prNumber = Number.parseInt(String(body.prNumber ?? ''), 10);
@@ -242,7 +281,7 @@ export async function POST({ request, platform }) {
   const missingEvidence = missingItems(config.requiredEvidence, evidenceKeys);
 
   if (!RECEIPT_RAILS.has(receiptRail)) {
-    throw error(400, `Receipt rail ${receiptRail} is not available in this demo.`);
+    throw error(400, `Receipt rail ${receiptRail} is not available in this workspace.`);
   }
 
   if (String(body.status ?? '') === 'blocked') {

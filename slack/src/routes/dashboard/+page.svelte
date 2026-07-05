@@ -68,6 +68,51 @@
     };
   };
 
+  type CantonLedgerStep = {
+    state: string;
+    actor: string;
+    action: string;
+    api: 'Validator Admin API' | 'Ledger API JSON' | 'Ledger API ACS';
+    receiptHash: string;
+  };
+
+  type CantonLowLevelFlow = {
+    network: {
+      synchronizer: string;
+      validator: string;
+      custody: 'internal';
+    };
+    party: {
+      partyIdHint: string;
+      allocatedPartyId: string;
+      participantId: string;
+      capability: 'canton.party.allocate';
+    };
+    preApproval: {
+      templateId: string;
+      contractId: string;
+      providerPartyId: string;
+      receiverPartyId: string;
+      capability: 'canton.preapproval.create';
+    };
+    coinBalance: {
+      ownerPartyId: string;
+      tokenSymbol: 'CC';
+      amount: string;
+      acsQueryHash: string;
+      capability: 'canton.coin.balance.read';
+    };
+    tokenTransfer: {
+      senderPartyId: string;
+      receiverPartyId: string;
+      amount: string;
+      commandId: string;
+      deduplicationOffset: string;
+      capability: 'canton.token.transfer';
+    };
+    ledger: CantonLedgerStep[];
+  };
+
   let released: Record<string, string> = {
     perf: 'Capability released: scoped merge command, 300s TTL'
   };
@@ -79,6 +124,11 @@
   let fundingError = '';
   let fundingReleasePending: Record<string, boolean> = {};
   let fundingReleaseNotes: Record<string, string> = {};
+  let cantonFlow: CantonLowLevelFlow | null = null;
+  let cantonLoading = true;
+  let cantonError = '';
+  let cantonReleasePending: Record<string, boolean> = {};
+  let cantonReleaseNotes: Record<string, string> = {};
 
   $: releasedCount = authorityFindings.filter((finding) => finding.status === 'released').length;
   $: waitingCount = authorityFindings.filter((finding) => finding.status === 'waiting').length;
@@ -175,6 +225,104 @@
     );
   }
 
+  async function loadCantonFlow() {
+    cantonLoading = true;
+    cantonError = '';
+
+    try {
+      const response = await fetch('/api/canton/low-level-lab');
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.message || 'Could not load ledger workflow.');
+      }
+
+      cantonFlow = payload as CantonLowLevelFlow;
+    } catch (error) {
+      cantonError = error instanceof Error ? error.message : 'Could not load ledger workflow.';
+    } finally {
+      cantonLoading = false;
+    }
+  }
+
+  async function releaseCantonCapability(
+    id: string,
+    capability: string,
+    approvals: string[],
+    evidenceKeys: string[]
+  ) {
+    cantonReleasePending = { ...cantonReleasePending, [id]: true };
+    cantonReleaseNotes = { ...cantonReleaseNotes, [id]: '' };
+
+    try {
+      const response = await fetch('/api/capability/release', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          capability,
+          dryRun: true,
+          status: 'proof',
+          approvals,
+          evidenceKeys,
+          receiptRail: 'canton:devnet'
+        })
+      });
+      const receipt = await response.json();
+
+      if (!response.ok) {
+        throw new Error(receipt.message || `Capability ${capability} was not released.`);
+      }
+
+      cantonReleaseNotes = {
+        ...cantonReleaseNotes,
+        [id]: `Authority recorded for ${receipt.capability}.`
+      };
+    } catch (error) {
+      cantonReleaseNotes = {
+        ...cantonReleaseNotes,
+        [id]: error instanceof Error ? error.message : 'Capability release failed.'
+      };
+    } finally {
+      cantonReleasePending = { ...cantonReleasePending, [id]: false };
+    }
+  }
+
+  function releaseCantonParty(flow: CantonLowLevelFlow) {
+    return releaseCantonCapability(
+      'canton-party',
+      flow.party.capability,
+      ['@ledger-ops', '@public-audit'],
+      ['validator_admin_endpoint', 'party_id_hint', 'custody_policy', 'participant_topology']
+    );
+  }
+
+  function releaseCantonPreApproval(flow: CantonLowLevelFlow) {
+    return releaseCantonCapability(
+      'canton-preapproval',
+      flow.preApproval.capability,
+      ['@ledger-ops', '@finance'],
+      ['allocated_party', 'preapproval_template', 'validator_tx_receipt']
+    );
+  }
+
+  function releaseCantonBalance(flow: CantonLowLevelFlow) {
+    return releaseCantonCapability(
+      'canton-balance',
+      flow.coinBalance.capability,
+      [],
+      ['ledger_api_filter', 'party_authorization', 'acs_snapshot_hash']
+    );
+  }
+
+  function releaseCantonTransfer(flow: CantonLowLevelFlow) {
+    return releaseCantonCapability(
+      'canton-transfer',
+      flow.tokenTransfer.capability,
+      ['@finance', '@ledger-ops'],
+      ['preapproval_contract', 'coin_balance', 'transfer_command_hash', 'recipient_party']
+    );
+  }
+
   async function releaseCapability(finding: AuthorityFinding) {
     if (finding.capability === 'none' || finding.status === 'blocked') return;
     pending = { ...pending, [finding.id]: true };
@@ -217,6 +365,7 @@
 
   onMount(() => {
     void loadFundingFlow();
+    void loadCantonFlow();
   });
 </script>
 
@@ -398,6 +547,151 @@
         </div>
       {:else}
         <p class="loading-line">Loading grant workflow...</p>
+      {/if}
+    </section>
+
+    <section class="canton-band" aria-label="Permissioned ledger controls">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Permissioned ledger operations</p>
+          <h2>Ledger commands are gated before Canton Coin moves.</h2>
+        </div>
+        <button class="secondary-action" type="button" on:click={loadCantonFlow}>
+          <LockKeyhole size={15} />
+          {cantonLoading ? 'loading' : 'refresh'}
+        </button>
+      </div>
+
+      {#if cantonError}
+        <p class="release-error">{cantonError}</p>
+      {:else if cantonFlow}
+        <div class="canton-grid">
+          <article class="canton-panel party-panel">
+            <div class="canton-panel-head">
+              <div>
+                <span>Internal party</span>
+                <h3>{cantonFlow.party.partyIdHint}</h3>
+              </div>
+              <strong>{cantonFlow.network.validator}</strong>
+            </div>
+
+            <dl class="canton-facts">
+              <div>
+                <dt>PartyId</dt>
+                <dd>{cantonFlow.party.allocatedPartyId}</dd>
+              </div>
+              <div>
+                <dt>Participant</dt>
+                <dd>{cantonFlow.party.participantId}</dd>
+              </div>
+              <div>
+                <dt>PreApproval</dt>
+                <dd>{cantonFlow.preApproval.contractId}</dd>
+              </div>
+            </dl>
+
+            <div class="ledger-actions">
+              <button type="button" on:click={() => cantonFlow && releaseCantonParty(cantonFlow)}>
+                {#if cantonReleasePending['canton-party']}
+                  <Clock3 size={15} />
+                  checking
+                {:else}
+                  <Check size={15} />
+                  release party authority
+                {/if}
+              </button>
+              <button
+                class="secondary-ledger-action"
+                type="button"
+                on:click={() => cantonFlow && releaseCantonPreApproval(cantonFlow)}
+              >
+                {#if cantonReleasePending['canton-preapproval']}
+                  <Clock3 size={15} />
+                  checking
+                {:else}
+                  <Check size={15} />
+                  release pre-approval
+                {/if}
+              </button>
+            </div>
+
+            {#if cantonReleaseNotes['canton-party']}
+              <p class="release-note">{cantonReleaseNotes['canton-party']}</p>
+            {/if}
+            {#if cantonReleaseNotes['canton-preapproval']}
+              <p class="release-note">{cantonReleaseNotes['canton-preapproval']}</p>
+            {/if}
+          </article>
+
+          <article class="canton-panel transfer-panel">
+            <div class="canton-panel-head">
+              <div>
+                <span>Canton Coin</span>
+                <h3>{cantonFlow.tokenTransfer.amount} {cantonFlow.coinBalance.tokenSymbol}</h3>
+              </div>
+              <strong>{cantonFlow.network.synchronizer}</strong>
+            </div>
+
+            <dl class="canton-facts">
+              <div>
+                <dt>Balance</dt>
+                <dd>{cantonFlow.coinBalance.amount} {cantonFlow.coinBalance.tokenSymbol}</dd>
+              </div>
+              <div>
+                <dt>Receiver</dt>
+                <dd>{cantonFlow.tokenTransfer.receiverPartyId}</dd>
+              </div>
+              <div>
+                <dt>Command</dt>
+                <dd>{cantonFlow.tokenTransfer.commandId}</dd>
+              </div>
+            </dl>
+
+            <div class="canton-ledger" aria-label="Canton command ledger">
+              {#each cantonFlow.ledger as step}
+                <div>
+                  <span>{step.state}</span>
+                  <strong>{step.api}</strong>
+                  <small>{step.actor}</small>
+                </div>
+              {/each}
+            </div>
+
+            <div class="ledger-actions">
+              <button type="button" on:click={() => cantonFlow && releaseCantonBalance(cantonFlow)}>
+                {#if cantonReleasePending['canton-balance']}
+                  <Clock3 size={15} />
+                  checking
+                {:else}
+                  <Check size={15} />
+                  authorize ACS read
+                {/if}
+              </button>
+              <button
+                class="secondary-ledger-action"
+                type="button"
+                on:click={() => cantonFlow && releaseCantonTransfer(cantonFlow)}
+              >
+                {#if cantonReleasePending['canton-transfer']}
+                  <Clock3 size={15} />
+                  checking
+                {:else}
+                  <Check size={15} />
+                  release transfer command
+                {/if}
+              </button>
+            </div>
+
+            {#if cantonReleaseNotes['canton-balance']}
+              <p class="release-note">{cantonReleaseNotes['canton-balance']}</p>
+            {/if}
+            {#if cantonReleaseNotes['canton-transfer']}
+              <p class="release-note">{cantonReleaseNotes['canton-transfer']}</p>
+            {/if}
+          </article>
+        </div>
+      {:else}
+        <p class="loading-line">Loading ledger workflow...</p>
       {/if}
     </section>
 
@@ -755,9 +1049,15 @@
   .funding-card span,
   .funding-card small,
   .funding-card code,
+  .canton-panel span,
+  .canton-panel strong,
+  .canton-panel dd,
+  .canton-panel dt,
+  .canton-panel small,
   .decision-row,
   .agent-session,
   .ledger-strip,
+  .ledger-actions,
   .shot span,
   .shot li {
     font-family:
@@ -772,6 +1072,7 @@
   .finding-head,
   .gate-row,
   .capability-row,
+  .canton-panel-head,
   .flow {
     font-family:
       ui-sans-serif,
@@ -828,6 +1129,16 @@
     padding: 14px;
   }
 
+  .canton-band {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+    border: 1px solid #aec9d3;
+    border-radius: 8px;
+    background: #f0f8fa;
+    padding: 14px;
+  }
+
   .secondary-action {
     display: inline-flex;
     align-items: center;
@@ -849,6 +1160,12 @@
     gap: 11px;
   }
 
+  .canton-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
   .funding-card {
     display: grid;
     align-content: start;
@@ -858,6 +1175,25 @@
     border-radius: 8px;
     background: #fffef8;
     padding: 13px;
+  }
+
+  .canton-panel {
+    display: grid;
+    align-content: start;
+    gap: 11px;
+    min-width: 0;
+    border: 1px solid #bfd4dc;
+    border-radius: 8px;
+    background: #fffdf8;
+    padding: 13px;
+  }
+
+  .party-panel {
+    border-top: 5px solid #2f7185;
+  }
+
+  .transfer-panel {
+    border-top: 5px solid #8b6132;
   }
 
   .gcc-card {
@@ -875,18 +1211,33 @@
     gap: 14px;
   }
 
+  .canton-panel-head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
   .funding-card-head > div,
+  .canton-panel-head > div,
   .funding-card p,
-  .funding-card code {
+  .funding-card code,
+  .canton-facts,
+  .canton-panel p {
     min-width: 0;
   }
 
   .funding-card-head span,
+  .canton-panel-head span,
   .agent-session span {
     color: #6a734b;
     font-size: 0.68rem;
     font-weight: 950;
     text-transform: uppercase;
+  }
+
+  .canton-panel-head span {
+    color: #4d7380;
   }
 
   .funding-card-head strong {
@@ -900,7 +1251,18 @@
     white-space: nowrap;
   }
 
+  .canton-panel-head strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #254f5d;
+    font-size: 0.78rem;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .funding-card p,
+  .canton-panel p,
   .loading-line {
     color: #5e6155;
     font-family:
@@ -909,6 +1271,41 @@
       sans-serif;
     font-size: 0.84rem;
     line-height: 1.36;
+  }
+
+  .canton-facts {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+  }
+
+  .canton-facts div {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    border: 1px solid #d2e1e5;
+    border-radius: 8px;
+    background: #f8fcfd;
+    padding: 7px 8px;
+  }
+
+  .canton-facts dt {
+    color: #4e6d76;
+    font-size: 0.68rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .canton-facts dd {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    color: #263f47;
+    font-size: 0.73rem;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .funding-card code {
@@ -989,6 +1386,49 @@
     padding: 8px 10px;
   }
 
+  .canton-ledger {
+    display: grid;
+    gap: 6px;
+  }
+
+  .canton-ledger div {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 4px 9px;
+    border: 1px solid #e0d5c8;
+    border-radius: 8px;
+    background: #fff9ef;
+    padding: 7px 8px;
+  }
+
+  .canton-ledger span {
+    color: #8b6132;
+    font-size: 0.7rem;
+    font-weight: 950;
+  }
+
+  .canton-ledger strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #3b4d54;
+    font-size: 0.72rem;
+    font-weight: 950;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .canton-ledger small {
+    grid-column: 2;
+    min-width: 0;
+    overflow: hidden;
+    color: #6c6054;
+    font-size: 0.66rem;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .agent-session span,
   .agent-session small {
     min-width: 0;
@@ -1047,6 +1487,31 @@
     font-size: 0.78rem;
     font-weight: 950;
     padding: 0 11px;
+  }
+
+  .ledger-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ledger-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 34px;
+    border: 0;
+    border-radius: 8px;
+    background: #214f5e;
+    color: #f8fcfd;
+    font-size: 0.76rem;
+    font-weight: 950;
+    padding: 0 11px;
+  }
+
+  .ledger-actions .secondary-ledger-action {
+    background: #6f4d28;
   }
 
   .section-heading {
@@ -1441,7 +1906,8 @@
       border-top: 1px solid #c9b797;
     }
 
-    .funding-grid {
+    .funding-grid,
+    .canton-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -1474,7 +1940,8 @@
 
     .scoreboard,
     .findings,
-    .funding-grid {
+    .funding-grid,
+    .canton-grid {
       grid-template-columns: 1fr;
     }
 
@@ -1505,6 +1972,15 @@
     .capability-row button {
       width: 100%;
       justify-content: center;
+    }
+
+    .canton-facts div,
+    .canton-ledger div {
+      grid-template-columns: 1fr;
+    }
+
+    .canton-ledger small {
+      grid-column: 1;
     }
   }
 </style>

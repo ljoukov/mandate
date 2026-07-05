@@ -18,7 +18,7 @@ The key product idea is that refusals are useful. When Mandate blocks or waits o
 
 The demo shows Mandate as one logical company or public-authority agent with many approval gates.
 
-The Slack-style surface starts with a pre-configured workspace account, then a broad request. Mandate separates the work into safe implementation changes, pricing authority, vendor/security checks, procurement commitments, protected tests, public-funding decisions, and paid verifier work.
+The Slack-style surface starts with a pre-configured workspace account, then a broad request. Mandate separates the work into safe implementation changes, pricing authority, vendor/security checks, procurement commitments, protected tests, public-funding decisions, paid verifier work, and permissioned ledger commands.
 
 ![Mandate account selection](artifacts/screenshots/slack-login-desktop.png)
 
@@ -31,6 +31,10 @@ The control room shows the authority peel: what can release now, what is waiting
 Public funding is scored with a reusable rubric, counterfactual additionality, milestone gates, anti-gaming adjustment, and appeal-ready receipts. External verifier procurement uses a request, bid, award, deposit, delivery, verification, and release ledger before payment can move.
 
 ![Public funding and verifier procurement workflow](artifacts/screenshots/dashboard-public-funding-verifier-responsive-section.png)
+
+Permissioned ledger operations show the same authority pattern for Canton: internal Party allocation, transfer pre-approval, ACS balance indexing, and Token Standard transfer preparation are separated into governed capabilities before Canton Coin moves.
+
+![Permissioned ledger workflow](artifacts/screenshots/dashboard-canton-permissioned-ledger-section.png)
 
 ## Product Claim
 
@@ -61,6 +65,7 @@ Mandate is deliberately not a wallet product, a DAO, or an autonomous-agent free
 | Read sensitive derived evidence | `evidence.permissioned_memory` | Enforce deterministic ACL and lineage before model context |
 | Allocate public-good funding | `public_capital.allocation` | Require rubric, counterfactuals, milestones, and public audit |
 | Pay a verifier or specialist agent | `verifier_procurement.spend` | Release only after budget, acceptance test, delivery proof, and receipt |
+| Prepare a permissioned ledger transfer | `permissioned_ledger.token_transfer` | Require Party authority, pre-approval, ACS balance, finance, and ledger-ops approval |
 
 ## Product Integrations
 
@@ -71,6 +76,7 @@ Mandate includes these product integrations:
 | Conduct | Controlled enterprise change, human approvals, scoped capabilities, blocked unsafe actions |
 | GCC & ETH | Public-funding allocation with non-gameable metrics, counterfactual reasoning, milestone verification, reusable interfaces |
 | CoralOS / STUK | Verifier procurement and settlement ledger where a public authority pays only after delivery and verification |
+| Canton / C8 DevNet | Permissioned ledger adapter for internal Party allocation, transfer pre-approval, ACS balance checks, and Canton Coin transfer commands |
 | Fetch.ai | Action-readiness agent that answers allowed, waiting, blocked, or proof-ready |
 
 ## Public Funding And Verifier Procurement Code
@@ -120,6 +126,26 @@ Code pointers:
 - `agent/src/public-funding-verifier-procurement.ts`
 - `slack/src/routes/dashboard/+page.svelte` for the live control-room view
 
+### Canton: Permissioned Ledger Operations
+
+Mandate models Canton as a permissioned ledger adapter. Validator-hosted Party allocation, PreApproval creation, ACS balance indexing, and Token Standard transfer preparation are separate governed actions, each with its own capability release and hash-only receipt.
+
+| Operation | Mandate gate |
+| --- | --- |
+| Allocate an internal Party | `@ledger-ops`, `@public-audit`, validator admin endpoint, party hint, custody policy, participant topology |
+| Create a transfer PreApproval | `@ledger-ops`, `@finance`, allocated Party, template identifier, validator transaction receipt |
+| Read Canton Coin balance | Ledger API filter, party authorization, ACS snapshot hash |
+| Prepare Token Standard transfer | `@finance`, `@ledger-ops`, preapproval contract, coin balance, transfer command hash, recipient Party |
+
+Code pointers:
+
+- `slack/src/lib/server/cantonWorkflows.ts`
+- `slack/src/routes/api/canton/low-level-lab/+server.ts`
+- `slack/src/routes/api/capability/release/+server.ts` for `canton.*`
+- `agent/src/canton-low-level-lab.ts`
+- `agent/output/canton-low-level-lab.json`
+- `slack/src/routes/dashboard/+page.svelte` for the live control-room view
+
 ## Key Slides
 
 These are generated PNG slides from the final deck.
@@ -151,6 +177,7 @@ Useful routes:
 | `/` | Slack-style request and approval flow |
 | `/dashboard` | Mandate control room |
 | `/api/public-funding/verifier-procurement` | Public-funding allocation and verifier-procurement workflow JSON |
+| `/api/canton/low-level-lab` | Canton Party allocation, PreApproval, ACS balance, and Token Standard transfer workflow JSON |
 | `/api/capability/release` | Capability gate used by the UI and integration workflows |
 | `/api/solana/action/mandate-receipt` | Hash-only Mandate receipt action |
 | `/api/solana/action/public-funding-release` | Hash-only public-funding verifier release receipt action |
@@ -162,6 +189,7 @@ cd agent
 npm install
 npm run fast-tax:evidence
 npm run public-funding:verifier-procurement
+npm run canton:low-level-lab
 python3 -m py_compile fetch_action_readiness_agent.py
 ```
 
@@ -171,11 +199,12 @@ Generated artifacts:
 | --- | --- |
 | `agent/output/mandate-run-42.json` | FastTax authority evidence |
 | `agent/output/public-funding-verifier-procurement.json` | Public-funding allocation decisions, verifier procurement ledger, receipt action metadata |
+| `agent/output/canton-low-level-lab.json` | Canton Party allocation, PreApproval, ACS balance, and Token Standard transfer authority artifact |
 
 ## Design Rules
 
 - The requester starts work; the organisation grants authority.
-- Mandate releases verbs, not secrets: `merge.money.pricing`, `allocate.public_funding`, `pay.agent.vendor`.
+- Mandate releases verbs, not secrets: `merge.money.pricing`, `allocate.public_funding`, `pay.agent.vendor`, `canton.token.transfer`.
 - No LLM decides final permission. Permission is deterministic at the gate.
 - Evidence can be private; receipts should be hash-only and audit-ready.
 - A blocked or waiting action must explain the next safe step.
