@@ -5,10 +5,12 @@
 .approvals/
 .code-onion/local/
 node_modules/
+__pycache__/
 .svelte-kit/
 build/
 dist/
 slack/node_modules/
 slack/.svelte-kit/
 slack/build/
+artifacts/agentverse/
 docs/hackathon-demos/

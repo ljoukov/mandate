@@ -8,6 +8,7 @@ The agent implements Fetch.ai's Agent Chat Protocol and answers the core
 Mandate question: can this proposed enterprise action proceed?
 """
 
+import os
 from datetime import datetime
 from uuid import uuid4
 
@@ -56,11 +57,22 @@ CAPABILITY_STATUS = {
 }
 
 
+AGENT_PORT = int(os.environ.get("MANDATE_AGENT_PORT", os.environ.get("PORT", "8008")))
+AGENT_ENDPOINT_URL = os.environ.get(
+    "AGENT_ENDPOINT_URL", f"http://127.0.0.1:{AGENT_PORT}/submit"
+)
+USE_AGENTVERSE_PROXY = os.environ.get("MANDATE_AGENT_PROXY", "").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+
 agent = Agent(
-    name="mandate_action_readiness",
-    seed="mandate-action-readiness-local-demo",
-    port=8008,
-    endpoint=["http://127.0.0.1:8008/submit"],
+    name=os.environ.get("MANDATE_AGENT_NAME", "mandate_action_readiness"),
+    seed=os.environ.get("MANDATE_AGENT_SEED", "mandate-action-readiness-local-demo"),
+    port=AGENT_PORT,
+    endpoint=None if USE_AGENTVERSE_PROXY else [AGENT_ENDPOINT_URL],
+    proxy=USE_AGENTVERSE_PROXY,
 )
 chat_proto = Protocol(spec=chat_protocol_spec)
 
